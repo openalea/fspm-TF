@@ -23,7 +23,7 @@ name = "openalea.fspm_tf"
 authors = [
   { name = "Tristan Gérault", email = "tristan.gerault@inrae.fr" },
 ]
-description = "fspm-TF, an exchange format for whole FSPM scenes: its Python reference codec, validator and vocabulary"
+description = "fspm-TF, an exchange format for whole FSPM scenes, with its Python reference codec, validator and vocabulary"
 readme = "README.md"
 license = "CECILL-C"
 license-files = ["LICEN[CS]E*"]

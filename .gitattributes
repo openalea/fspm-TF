@@ -1,0 +1,2 @@
+# The conformance files are compared byte for byte with what generate.py writes: never convert their line endings
+conformance/** -text
