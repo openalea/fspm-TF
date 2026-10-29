@@ -76,16 +76,26 @@ mapping, an adaptive grid, a parameter set, and a growing sequence. Each GLB com
 - **Writing:** what it writes, for the same scenes, passes `fspm-tf validate` with no error. It also passes Khronos'
   glTF-Validator with no error, so that every viewer opens it.
 
-In the codec's CI, both run against the shared `conformance/` folder:
+`conformance/README.md` gives the layout of the expected JSON. A codec dumps what it reads from each conformance
+GLB in that layout (`x.json` for `x.glb`), and writes the same scenes back as GLB files. Then:
+
+```bash
+fspm-tf compare-all dumps/ conformance/       # reading: every dump equals its expected values, or the differences
+fspm-tf validate written/*.glb                # writing
+```
+
+In GitHub Actions, the composite action `.github/actions/conformance` runs both, plus Khronos' glTF-Validator,
+after the codec's own steps:
 
 ```yaml
-- name: Read the conformance files
-  run: <the codec's test command>           # compares each conformance GLB with its *.expected.json
-- name: Write the conformance scenes, then validate them
-  run: |
-    <the codec's writer> conformance-out/
-    pip install numpy jsonschema && pip install -e .
-    fspm-tf validate conformance-out/*.glb
+- name: Dump and write the conformance scenes
+  run: <the codec's command> conformance out          # out/dumps/x.json, out/written/x.glb
+- uses: ./.github/actions/conformance
+  with:
+    dumps: out/dumps
+    written: out/written
 ```
+
+The Python codec does exactly this (`bindings/python/conformance_run.py`, the `python-codec-conformance` job).
 
 A codec that passes is listed in [Implementations](implementations.md) with the version it passes.

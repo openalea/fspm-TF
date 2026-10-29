@@ -1,10 +1,14 @@
 """
-The fspm-tf command line:
+The fspm-tf command line::
 
     fspm-tf validate FILE...                    check .glb frames or sequences (scene.fspm.json); exit 1 on errors
     fspm-tf info FILE                           what a frame holds
     fspm-tf display FILE NAME... [-o OUT]       add display copies of variables (in place, or to OUT)
     fspm-tf display FILE --remove [-o OUT]      remove them
+    fspm-tf compare ACTUAL EXPECTED             a codec's JSON dump (or a .glb) against expected values; exit 1 if they
+                                                differ
+    fspm-tf compare-all DUMPS CONFORMANCE       every conformance file's expected values against the dump at the same
+                                                path (x.expected.json: DUMPS/x.json); exit 1 if any differ
 """
 import argparse
 import sys
@@ -58,6 +62,31 @@ def _display(arguments) -> int:
     return 0
 
 
+def _print_differences(name: str, differences: list, shown: int = 20) -> None:
+    print(f"{name}: {'equal' if not differences else f'{len(differences)} difference(s)'}")
+    for line in differences[:shown]:
+        print(f"  {line}")
+    if len(differences) > shown:
+        print(f"  ... {len(differences) - shown} more")
+
+
+def _compare(arguments) -> int:
+    from openalea.fspm_tf.compare import compare_files
+    differences = compare_files(arguments.actual, arguments.expected)
+    _print_differences(arguments.actual, differences)
+    return 1 if differences else 0
+
+
+def _compare_all(arguments) -> int:
+    from openalea.fspm_tf.compare import compare_all
+    results = compare_all(arguments.dumps, arguments.conformance)
+    for name, differences in results.items():
+        _print_differences(name, differences)
+    failed = sum(1 for differences in results.values() if differences)
+    print(f"{len(results) - failed} of {len(results)} conformance files read as expected")
+    return 1 if failed or not results else 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="fspm-tf", description="fspm-TF files: validate, inspect, display")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -74,6 +103,15 @@ def main(argv=None) -> int:
     display.add_argument("--remove", action="store_true", help="remove display copies (all, or the names given)")
     display.add_argument("-o", "--output", default=None, help="write to this file instead of in place")
     display.set_defaults(run=_display)
+    compare = commands.add_parser("compare", help="a codec's JSON dump (or a .glb) against expected values")
+    compare.add_argument("actual")
+    compare.add_argument("expected")
+    compare.set_defaults(run=_compare)
+    compare_all = commands.add_parser("compare-all", help="dumps of every conformance file against their expected "
+                                                          "values")
+    compare_all.add_argument("dumps", help="the folder of the codec's dumps (x.json for x.expected.json)")
+    compare_all.add_argument("conformance", help="fspm-TF's conformance folder")
+    compare_all.set_defaults(run=_compare_all)
     arguments = parser.parse_args(argv)
     return arguments.run(arguments)
 

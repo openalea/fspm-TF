@@ -41,6 +41,13 @@ the vocabulary and units.
    :members: dimension, is_valid, convertible
 ```
 
+## Comparing with expected values
+
+```{eval-rst}
+.. automodule:: openalea.fspm_tf.compare
+   :members: compare, compare_files, compare_all
+```
+
 ## Expected values
 
 ```{eval-rst}
