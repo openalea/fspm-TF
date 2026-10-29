@@ -25,6 +25,7 @@ METRIC_ATOMS = {
     "lm": _dims(J=1), "lx": _dims(J=1, L=-2), "Bq": _dims(T=-1), "Gy": _dims(L=2, T=-2), "Sv": _dims(L=2, T=-2),
     "L": _dims(L=3), "l": _dims(L=3), "bar": _dims(M=1, L=-1, T=-2), "ar": _dims(L=2), "t": _dims(M=1),
     "eq": _dims(N=1), "Cel": _dims(Th=1),
+    "m[H2O]": _dims(M=1, L=-1, T=-2), "m[Hg]": _dims(M=1, L=-1, T=-2),     # pressures as heights: cm[H2O], mm[Hg]
 }
 ATOMS = dict(METRIC_ATOMS, **{
     "min": _dims(T=1), "h": _dims(T=1), "d": _dims(T=1), "wk": _dims(T=1), "mo": _dims(T=1), "a": _dims(T=1),
@@ -33,7 +34,7 @@ ATOMS = dict(METRIC_ATOMS, **{
 SPECIAL = {"Cel"}                                   # an offset scale: not allowed in products, quotients, powers
 PREFIXES = ("da", "Y", "Z", "E", "P", "T", "G", "M", "k", "h", "d", "c", "m", "u", "n", "p", "f", "a", "z", "y")
 
-_TOKEN = re.compile(r"\{[^{}]*\}|\(|\)|\.|/|[+-]?\d+|\[[^\]]+\]|%|[A-Za-z]+")
+_TOKEN = re.compile(r"\{[^{}]*\}|\(|\)|\.|/|[+-]?\d+|[A-Za-z]+\[[^\]]+\]|\[[^\]]+\]|%|[A-Za-z]+")
 
 
 class UnitError(ValueError):
