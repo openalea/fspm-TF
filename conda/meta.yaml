@@ -53,12 +53,12 @@ test:
     - {{ pyproject["project"]["name"] }}
 
   source_files:
-    - test/**
+    - bindings/python/test/**
     - conformance/**                            # the reference files the tests check, and their generator
 
   commands:
     - fspm-tf --help
-    - cd test
+    - cd bindings/python/test
     - pytest -v
 
 about:

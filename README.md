@@ -28,10 +28,10 @@ change there, released as a new version. Everything else implements, checks or d
 | `spec/schema/` | the JSON Schemas of the `FSPM_scene` extension and of a sequence's index | **yes** |
 | `spec/vocabulary/` | the standard names (units, kinds, definitions, and each platform's names for them), the labels with their Plant Ontology terms, the enumerations | **yes** |
 | `conformance/` | reference files, each a GLB with its expected values as JSON, written by `generate.py`: the specification as test cases for every platform's code | follows `spec/` |
-| `src/openalea/fspm_tf/` | `openalea.fspm_tf`, the Python reference implementation: codec, validator, display copies, command line; it reads `spec/` (and ships it) | no |
+| `bindings/<language>/` | each language's codec, with its own build, tests and release; `bindings/python/`: `openalea.fspm_tf`, the reference (codec, validator, display copies, command line), which reads `spec/` and ships it | no |
 | `paraview/` | the ParaView reader plugin, and the script checking it in a `pvpython` | no |
 | `docs/design_note.md` | how the decisions were reached | no |
-| `test/` | the tests of the Python package, the reader and the conformance files | no |
+| `pyproject.toml`, `conda/` | the Python package's build, at the root next to `spec/`, which it ships | no |
 
 ## The Python package
 
@@ -71,7 +71,7 @@ What it shows:
 - Text columns such as labels become integer codes, `<entity set>.<column>_code`; the names behind the codes are in
   the block's field data.
 
-The plugin finds `openalea.fspm_tf` in ParaView's Python if it is installed there, otherwise in this clone's `src/`.
+The plugin finds `openalea.fspm_tf` in ParaView's Python if it is installed there, otherwise in this clone's `bindings/python/src/`.
 It needs nothing beyond what ParaView ships (numpy). In `pvpython` scripts the reader is
 `fspmTFreader(FileName=...)`, after `LoadPlugin("paraview/fspm_tf_reader.py", ns=globals())`. Checked with
 ParaView 6.0.1: `pvpython paraview/check_in_paraview.py conformance` (also run by the tests when
@@ -79,8 +79,17 @@ ParaView 6.0.1: `pvpython paraview/check_in_paraview.py conformance` (also run b
 
 ## For another platform
 
-A platform implements fspm-TF in its own language and repository. It reads the conformance GLBs and compares what it
-reads with their `*.expected.json`. It runs `fspm-tf validate` on what it writes, in its own CI. The steps are in the
+Two pieces of code make a platform read and write fspm-TF:
+
+- **A codec** for its language: GLB files, property tables, sequences, the vocabulary. It depends on `spec/` only, so it
+  lives here, in `bindings/<language>/` (`cpp/`, `java/`, `julia/`...), with its build files, its tests and its own
+  release, maintained by the platform's team. A change to `spec/` then updates every codec in the same pull request,
+  and the CI shows which languages follow.
+- **An adapter** between the codec's tables and the platform's own model (e.g. `openalea.metafspm.io.fspm_tf` for
+  metafspm's DataStructures). It depends on the platform, so it lives in the platform's repository.
+
+Each codec runs the same conformance check in its own tests. It reads the conformance GLBs and compares what it
+reads with their `*.expected.json`, and it runs `fspm-tf validate` on what it writes. The steps are in the
 [specification, §9](spec/specification.md#9-conformance).
 
 Each platform has a column of `spec/vocabulary/standard_names.csv`, listing its own names for each standard name

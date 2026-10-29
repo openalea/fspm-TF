@@ -68,7 +68,7 @@ assert cells[0] < cells[1] < cells[2], cells                # the root system gr
 print("cells per time step", cells)
 
 # Without the plugin: ParaView's own glTF reader shows the geometry and the display copies (float32 point data)
-sys.path.insert(0, os.path.join(os.path.dirname(HERE), "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "bindings", "python", "src"))
 import tempfile  # noqa: E402
 
 from openalea import fspm_tf  # noqa: E402

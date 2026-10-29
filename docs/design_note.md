@@ -425,13 +425,13 @@ fspm-TF/
     specification.md          the specification
     schema/                   JSON Schema of FSPM_scene and of the index file
     vocabulary/               standard_names.csv (with one column of names per platform), labels.csv, enums.json
-  src/openalea/fspm_tf/       the Python reference package (§5.1): codec, validator, display tool, command line; it
-                              reads spec/ and ships it (openalea.fspm_tf.spec)
+  bindings/python/            the Python reference package (§5.1): codec, validator, display tool, command line, and
+                              its tests; it reads spec/ and ships it (openalea.fspm_tf.spec)
+  bindings/<language>/        the other languages' codecs, by their teams (adapters stay in the platforms)
   paraview/                   the ParaView reader plugin
   conformance/                the reference files: a root system, a wheat shoot, a cell network, a soil grid with
                               its mapping, an adaptive grid, a parameter set, a 3-frame growing sequence; each GLB
                               with its expected values as JSON; generate.py writes them
-  test/                       pytest: the codec, the validator, the tools, the conformance files
   conda/, pyproject.toml      packaging, as metafspm's
   .github/workflows/          openalea's conda CI; the conformance job (our validator and Khronos' glTF-Validator)
   implementations.md          pointers to each platform's reader and writer, kept in the platforms' own repositories
@@ -469,7 +469,7 @@ chunk and a binary chunk, so no glTF library is needed. It contains:
 
 **Tests and CI**, the same way as metafspm:
 
-- pytest in `test/`;
+- pytest in `bindings/python/test/`;
 - GitHub Actions with openalea's build-publish-anaconda action, publishing a noarch conda package to `openalea3` (and
   PyPI) on each release tag.
 - The CI also runs Khronos' glTF-Validator (a standalone binary) on every conformance file, so the files stay valid
@@ -581,7 +581,7 @@ answer: I don't understand the question.
    The best-suited option is a **ParaView reader plugin written in Python**, shipped with `openalea.fspm_tf`:
    - ParaView loads Python readers (a `VTKPythonAlgorithmBase` with its decorators, since ParaView 5.6). It runs
      them in its own Python, which has numpy, so the pure-Python `openalea.fspm_tf` codec runs inside ParaView.
-     (Checked with ParaView 6.0.1: nothing to install, the plugin finds `openalea.fspm_tf` in the clone's `src/`.)
+     (Checked with ParaView 6.0.1: nothing to install, the plugin finds `openalea.fspm_tf` in the clone's `bindings/python/src/`.)
    - The plugin reads the GLB (or the index file) and turns each triangle's entity value into float64 *cell data*
      (one value per triangle, from the feature IDs). Every variable, at every scale, becomes available for colouring,
      filters and plots. The index's frames become ParaView's time steps, with a growing topology.

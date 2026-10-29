@@ -5,8 +5,8 @@ every variable of every scale as data arrays.
     ParaView ≥ 5.10: Tools > Manage Plugins > Load New..., choose this file (tick "Auto Load" to keep it); then
     File > Open a .glb or a scene.fspm.json and pick "fspm-TF reader".
 
-The reader needs openalea.fspm_tf: found in ParaView's Python when installed there, else in the src/ folder of the
-fspm-TF clone holding this file (nothing to install: the codec needs numpy only, which ParaView ships).
+The reader needs openalea.fspm_tf: found in ParaView's Python when installed there, else in the bindings/python/src
+folder of the fspm-TF clone holding this file (nothing to install: the codec needs numpy only, which ParaView ships).
 
 What it shows, one block per data structure:
 
@@ -41,7 +41,7 @@ def _fspm_tf():
     try:
         from openalea import fspm_tf
     except ImportError:
-        source = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+        source = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bindings", "python", "src")
         if source not in sys.path:
             sys.path.insert(0, source)
         from openalea import fspm_tf
