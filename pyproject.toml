@@ -41,15 +41,15 @@ classifiers = [
 
 # you can list here all dependencies that are pip-instalable, and that have a name identical to the one used by conda (to allow reuse of this list in meta.yaml)
 # If conda name is different, please do not declare the pip name, and declare conda name in the next section
-dependencies = [
-    "numpy",
-    "jsonschema",
-]
+dependencies = []
 
 # section specific to conda-only distributed package (not used by pip yet)
 [tool.conda.environment]
 
-dependencies = []
+dependencies = [
+    "numpy",
+    "jsonschema",
+]
 
 [project.optional-dependencies]
 test = [
@@ -58,6 +58,13 @@ test = [
 dev = [
   "pytest >=6",
   "pytest-cov >=3",
+]
+doc = [
+  "sphinx",
+  "pydata-sphinx-theme",
+  "myst-parser",
+  "sphinx-favicon",
+  "sphinx-copybutton",
 ]
 
 [project.scripts]

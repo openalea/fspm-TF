@@ -38,7 +38,7 @@ change there, released as a new version. Everything else implements, checks or d
 ```bash
 git clone https://github.com/openalea/fspm-TF.git
 cd fspm-TF
-mamba env create -f conda/environment.yml        # or: pip install -e . (numpy and jsonschema only)
+mamba env create -f conda/environment.yml        # numpy and jsonschema from conda-forge, then pip install -e .
 mamba activate fspm_tf
 pytest
 ```

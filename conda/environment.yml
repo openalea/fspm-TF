@@ -8,6 +8,12 @@ dependencies:
   - jsonschema
   - pip
   - pytest
-  # let pip install the rest using pyproject.toml (if you are okay with conda/pip mix)
+  # the documentation (docs/, also built by readthedocs from this file)
+  - sphinx
+  - pydata-sphinx-theme
+  - myst-parser
+  - sphinx-favicon
+  - sphinx-copybutton
+  # the package itself, from the sources (its dependencies are the conda ones above)
   - pip:
       - -e ..
