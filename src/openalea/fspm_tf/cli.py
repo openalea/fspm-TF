@@ -9,9 +9,9 @@ The fspm-tf command line:
 import argparse
 import sys
 
-from fspm_tf import read, write
-from fspm_tf.display import add_display, remove_display
-from fspm_tf.validate import validate_file
+from openalea.fspm_tf import read, write
+from openalea.fspm_tf.display import add_display, remove_display
+from openalea.fspm_tf.validate import validate_file
 
 
 def _validate(arguments) -> int:

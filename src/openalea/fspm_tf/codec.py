@@ -16,9 +16,9 @@ import re
 
 import numpy as np
 
-from fspm_tf import SPECIFICATION_VERSION
-from fspm_tf.glb import BufferBuilder, pack, unpack, view_bytes
-from fspm_tf.model import (DataStructure, EDGE_TYPES, ENUM_COLUMNS, EntitySet, Frame, Grid, Mapping, Mesh, NO_ID,
+from openalea.fspm_tf import SPECIFICATION_VERSION
+from openalea.fspm_tf.glb import BufferBuilder, pack, unpack, view_bytes
+from openalea.fspm_tf.model import (DataStructure, EDGE_TYPES, ENUM_COLUMNS, EntitySet, Frame, Grid, Mapping, Mesh, NO_ID,
                            Relation, Table, Variable)
 
 EXTENSION = "FSPM_scene"

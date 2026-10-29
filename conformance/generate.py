@@ -1,6 +1,6 @@
 """
 The conformance files of fspm-TF: small reference scenes covering the specification, each written as a GLB with its
-expected values as JSON (fspm_tf.dump). A reader in any language passes when what it reads from each GLB equals the
+expected values as JSON (openalea.fspm_tf.dump). A reader in any language passes when what it reads from each GLB equals the
 JSON; a writer passes when the validator accepts what it writes for the same scenes.
 
     python conformance/generate.py          (re)writes the files next to this script
@@ -14,9 +14,9 @@ import sys
 
 import numpy as np
 
-from fspm_tf import (DataStructure, EntitySet, Frame, Grid, Mapping, Mesh, NO_ID, Relation, Table, Variable,
+from openalea.fspm_tf import (DataStructure, EntitySet, Frame, Grid, Mapping, Mesh, NO_ID, Relation, Table, Variable,
                      to_bytes, write_index)
-from fspm_tf.dump import frame_to_dict
+from openalea.fspm_tf.dump import frame_to_dict
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 WRITER = {"platform": "fspm-tf", "model": "conformance"}

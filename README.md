@@ -22,9 +22,9 @@ Status: specification 0.1, draft.
 | Folder | Content |
 |---|---|
 | `spec/` | the specification |
-| `src/fspm_tf/schema/`, `src/fspm_tf/vocabulary/` | the language-neutral files of the specification: JSON Schemas, standard names, labels, enums |
+| `src/openalea/fspm_tf/schema/`, `src/openalea/fspm_tf/vocabulary/` | the language-neutral files of the specification: JSON Schemas, standard names, labels, enums |
 | `conformance/` | reference files, each a GLB with its expected values as JSON, and `generate.py`, which writes them |
-| `src/fspm_tf/` | `fspm-tf`, the Python reference implementation: codec, validator, display copies, command line |
+| `src/openalea/fspm_tf/` | `openalea.fspm_tf`, the Python reference implementation: codec, validator, display copies, command line |
 
 ## The Python package
 
@@ -37,7 +37,7 @@ pytest
 ```
 
 ```python
-import fspm_tf
+from openalea import fspm_tf
 
 frame = fspm_tf.read("scene.glb")                # data structures, entity sets as numpy columns, meshes
 fspm_tf.write("copy.glb", frame)

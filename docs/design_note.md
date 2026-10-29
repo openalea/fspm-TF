@@ -340,7 +340,7 @@ pointing at them, capped at 4 GiB.
 #### Viewing
 
 - Any glTF viewer shows the geometry.
-- ParaView, with the `fspm-tf` reader plugin, shows every variable at every scale as float64 cell data, with the
+- ParaView, with the `openalea.fspm_tf` reader plugin, shows every variable at every scale as float64 cell data, with the
   index's frames as time steps (§7.4).
 - ParaView without the plugin, and other viewers, show the display copies: float32 per-vertex copies of chosen
   variables. Files have none by default; the writer's `display=` option or the `fspm-tf display` tool adds them.
@@ -407,7 +407,7 @@ A DataStructure *backed* by a glTF buffer would have to keep the JSON and the bu
 speed. **Recommendation: no backing DataStructure.** Provide instead:
 
 - `export_frame(scene or data structures, path)` and `import_frame(path) -> data structures`, in metafspm's `io`
-  module, on top of the `fspm-tf` codec (§5.1);
+  module, on top of the `openalea.fspm_tf` codec (§5.1);
 - a `SceneRecorder` option writing frames every N steps;
 - the round-trip test as the contract: export → import gives the same ids, topology, values (bit for bit), metadata
   and mappings, for every DataStructure type and location;
@@ -422,7 +422,7 @@ fspm-TF/
   README.md
   docs/design_note.md         this note
   spec/                       the specification, versioned (fspm_tf_0.1.md)
-  src/fspm_tf/                the Python reference package (§5.1): codec, validator, display tool, command line
+  src/openalea/fspm_tf/                the Python reference package (§5.1): codec, validator, display tool, command line
     schema/                   JSON Schema of FSPM_scene and of the index file (language-neutral files, shipped
     vocabulary/               standard_names.csv, labels.csv, enums.json      with the package and the releases)
   conformance/                the reference files: a root system, a wheat shoot, a cell network, a soil grid with
@@ -450,18 +450,18 @@ fspm-TF/
 Everything maintained in this repository is Python. The other platforms take part through files and a command line,
 not code: no C++, Java or Julia has to be maintained here.
 
-**The Python package `fspm-tf`.** Its only dependencies are numpy and jsonschema; GLB is a 12-byte header plus a JSON
+**The Python package `openalea.fspm_tf`.** Its only dependencies are numpy and jsonschema; GLB is a 12-byte header plus a JSON
 chunk and a binary chunk, so no glTF library is needed. It contains:
 
-- `fspm_tf.codec`:
+- `openalea.fspm_tf.codec`:
   - `write(path, frame)` and `read(path) -> frame`, where a frame is plain Python: data structures, entity sets as
     `{column: numpy array}`, variable declarations as dicts, meshes as arrays with feature IDs;
   - `write_index` and `read_index` for sequences.
-- `fspm_tf.validate`: JSON Schema checks of `FSPM_scene` and the index; the checks the schema cannot express (ids
+- `openalea.fspm_tf.validate`: JSON Schema checks of `FSPM_scene` and the index; the checks the schema cannot express (ids
   unique and never reused across frames, `complex` and `parent` pointing to existing entities, units parsable as UCUM,
   kinds and standard names in the vocabulary, tables 8-byte aligned, display copies flagged).
-- `fspm_tf.display`: adds or removes display copies (§7.4).
-- `fspm_tf.vocabulary`: the vocabulary table, shipped as package data.
+- `openalea.fspm_tf.display`: adds or removes display copies (§7.4).
+- `openalea.fspm_tf.vocabulary`: the vocabulary table, shipped as package data.
 - A command line: `fspm-tf validate file.glb`, `fspm-tf display file.glb name ...`, `fspm-tf info file.glb`.
 
 **Tests and CI**, the same way as metafspm:
@@ -487,12 +487,12 @@ claims.
 
 - `openalea.metafspm.io.fspm_tf`, a new module, maps metafspm's DataStructures, mappings and declarations to
   `fspm_tf` frames and back (§4.3), and calls the codec. It is the only metafspm code concerned.
-- metafspm's environment and recipe add `fspm-tf`, pinned to the specification version it implements
-  (`fspm-tf >=0.1,<0.2`).
+- metafspm's environment and recipe add `openalea.fspm_tf`, pinned to the specification version it implements
+  (`openalea.fspm_tf >=0.1,<0.2`).
 - During development it is installed with `pip install -e ../fspm-TF`, as metafspm itself is in the ported packages.
-- metafspm's tests use the round trip (§4.8), `fspm_tf.validate` on what it writes, and the conformance files on
+- metafspm's tests use the round trip (§4.8), `openalea.fspm_tf.validate` on what it writes, and the conformance files on
   what it reads.
-- A new release of the specification is a new `fspm-tf` version. metafspm moves to it with a pin change, and its
+- A new release of the specification is a new `openalea.fspm_tf` version. metafspm moves to it with a pin change, and its
   tests tell what has to follow.
 
 ### 5.2 What other languages need
@@ -515,7 +515,7 @@ What a platform writes is **its codec**:
 
 That is a few hundred lines in any language, and existing libraries can help:
 - **C++ (CPlantBox):** cesium-native reads and writes `EXT_structural_metadata` fully. CPlantBox can also begin
-  through its Python layer, with `fspm-tf` directly.
+  through its Python layer, with `openalea.fspm_tf` directly.
 - **Java (GroIMP):** JglTF has the extension's JSON classes. GroIMP's existing glTF plugin is the place to extend.
 - **Julia (VPL):** GLTF.jl handles `.gltf` JSON only, so a small GLB reader has to be written. That is the part
   above, the header and the two chunks.
@@ -528,9 +528,9 @@ the specification version each one passes. fspm-TF itself maintains only Python.
 | Phase | Content | Done when |
 |---|---|---|
 | P0 | This note, discussed with the partner platforms | the [decision] points settled |
-| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `fspm-tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files |
+| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `openalea.fspm_tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files |
 | P2 | metafspm reference implementation: `export_frame` and `import_frame` for MPG, Array and AdaptiveGrid DataStructures, mappings and triangles | round-trip tests bit-exact on the ported models' scenes (ArchiSimple, Adel, Caribu, GRANAP and MECHA, soil) |
-| P3 | The ParaView reader plugin (Python, on the `fspm-tf` codec: every variable as cell data, frames as time steps); viewer checks of display copies: ParaView without the plugin, three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
+| P3 | The ParaView reader plugin (Python, on the `openalea.fspm_tf` codec: every variable as cell data, frames as time steps); viewer checks of display copies: ParaView without the plugin, three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
 | P4 | A second platform: CPlantBox through its Python layer (the easiest), or VPL through PlantGeom.jl | a file written by one platform and read by the other, with the same values |
 | P5 | Arrow binding and coupling protocol; a two-platform coupled run | one component in metafspm and one in another platform exchanging tables at each step |
 
@@ -575,10 +575,10 @@ answer: I don't understand the question.
      show its values, and colour by a property through a custom shader. But they are geospatial and web-graphics
      tools: there is no plot, no filter, and no notion of our index of time steps.
 
-   The best-suited option is a **ParaView reader plugin written in Python**, shipped with `fspm-tf`:
+   The best-suited option is a **ParaView reader plugin written in Python**, shipped with `openalea.fspm_tf`:
    - ParaView loads Python readers (a `VTKPythonAlgorithmBase` with its decorators, since ParaView 5.6). It runs
-     them in its own Python, which has numpy, so the pure-Python `fspm-tf` codec runs inside ParaView.
-     **[to verify: installing `fspm-tf` into ParaView's Python, per platform]**
+     them in its own Python, which has numpy, so the pure-Python `openalea.fspm_tf` codec runs inside ParaView.
+     **[to verify: installing `openalea.fspm_tf` into ParaView's Python, per platform]**
    - The plugin reads the GLB (or the index file) and turns each triangle's entity value into float64 *cell data*
      (one value per triangle, from the feature IDs). Every variable, at every scale, becomes available for colouring,
      filters and plots. The index's frames become ParaView's time steps, with a growing topology.
@@ -600,13 +600,13 @@ answer: also parameters, that would enable also to exchange them between platfor
 answer: should be a separated initiative. In this regard, how is the test / source management and CI to be handled, since I am only used to python? In the example of metafspm, how will this repo or its release be used to build metafspm's io?
    → **Decided:** fspm-TF is an initiative separate from RSML and PlantConvert. Converters to and from them can come
    later, in PlantConvert. On tests, sources, CI and metafspm's use of the repository: see §5.1. In short:
-   - The repository holds the specification and a **Python** package, `fspm-tf`, which depends only on numpy and
+   - The repository holds the specification and a **Python** package, `openalea.fspm_tf`, which depends only on numpy and
      jsonschema. It is the reference codec: it reads and writes GLB files, their property tables and the index, and
      knows nothing of metafspm. It also contains the validator and the conformance files.
    - Other platforms need no Python of yours. They use the conformance files (GLBs plus their expected values as
      JSON) as test fixtures in their own CI, and run the validator on what they write. The validator is installed by
      `pip` or `conda` and run as a command line.
-   - metafspm depends on `fspm-tf` like on any package, pinned to a specification version. Its `io` module maps
+   - metafspm depends on `openalea.fspm_tf` like on any package, pinned to a specification version. Its `io` module maps
      DataStructures to the generic model and calls the codec.
      answer: ok for the strategy, I see how the python package will make it easily available in python, but for other languages / platforms what does it imply to make the format's conventions available?
 
@@ -617,7 +617,7 @@ answer: should be a separated initiative. In this regard, how is the test / sour
      conventions.
    - Each platform writes **its own codec**: GLB's three parts, the property tables, and the mapping to its own model.
    - The validator checks every platform's output from the command line.
-   - CPlantBox can also start from its Python layer with `fspm-tf` directly.
+   - CPlantBox can also start from its Python layer with `openalea.fspm_tf` directly.
 7. The first vocabulary: who proposes it, and the 30 names to start from.
 The first vocabulary can be inspired from metafspm's current version, but if metafspm lacks some aspects, you can inspire from other platforms.
    → **Decided:** the first vocabulary is drafted from the declarations of metafspm and of its ported packages

@@ -15,10 +15,10 @@ import os
 import jsonschema
 import numpy as np
 
-from fspm_tf import schema as schemas, ucum, vocabulary
-from fspm_tf.codec import (DTYPES, EDGE_TYPE_ENUM, EXTENSION, FEATURES, METADATA, from_bytes)
-from fspm_tf.glb import unpack
-from fspm_tf.model import EDGE_TYPES, NO_ID
+from openalea.fspm_tf import schema as schemas, ucum, vocabulary
+from openalea.fspm_tf.codec import (DTYPES, EDGE_TYPE_ENUM, EXTENSION, FEATURES, METADATA, from_bytes)
+from openalea.fspm_tf.glb import unpack
+from openalea.fspm_tf.model import EDGE_TYPES, NO_ID
 
 
 @dataclass

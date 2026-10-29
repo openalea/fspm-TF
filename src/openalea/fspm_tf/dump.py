@@ -9,7 +9,7 @@ import math
 
 import numpy as np
 
-from fspm_tf.model import Frame, Table
+from openalea.fspm_tf.model import Frame, Table
 
 
 def _value(value):

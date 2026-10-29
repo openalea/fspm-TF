@@ -3,9 +3,10 @@
 {% set description = pyproject.get('project').get('description') %}
 {% set version = environ.get('SETUPTOOLS_SCM_PRETEND_VERSION', "0.0.0.dev") %}
 {% set license = pyproject.get('project').get('license') %}
-{% set home = pyproject.get('project', {}).get('urls', {}).get('Repository', '') %}
+{% set home = pyproject.get('project', {}).get('urls', {}).get('Homepage', '') %}
 {% set build_deps = pyproject.get("build-system", {}).get("requires", []) %}
 {% set deps = pyproject.get('project', {}).get('dependencies', []) %}
+{% set conda_deps = pyproject.get('tool', {}).get('conda', {}).get('environment', {}).get('dependencies',[]) %}
 {% set test_deps = pyproject.get('project', {}).get('optional-dependencies', {}).get('test',[]) %}
 
 package:
@@ -18,10 +19,15 @@ source:
 build:
   noarch: python
   number: 0
+  preserve_egg_dir: True
   string: py{{ PY_VER }}
+  # pip install options mainly ensure that dependencies are handled by conda (and not pip)
+  # --no-deps ensure pip will not install deps not declared in meta.yaml (but declared in pyproject.toml)
+  # --no-build-isolation ensure pip will not replace build deps declared in meta.yaml (and declared in pyproject.toml)
+  # --ignore-installed ensure that compiled files (accidentally present in sources or uncleaned locally) will be overwritten
   script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-build-isolation -vv
   entry_points:
-    - fspm-tf = fspm_tf.cli:main
+    - fspm-tf = openalea.fspm_tf.cli:main
 
 requirements:
   build:
@@ -32,9 +38,10 @@ requirements:
 
   run:
     - python
-    {% for dep in deps %}
+    {% for dep in deps + conda_deps %}
     - {{ dep }}
     {% endfor %}
+
 
 test:
   requires:
@@ -43,7 +50,7 @@ test:
     {% endfor %}
 
   imports:
-    - fspm_tf
+    - {{ pyproject["project"]["name"] }}
 
   source_files:
     - test/**

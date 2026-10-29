@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 import generate
-from fspm_tf import (DataStructure, EntitySet, Frame, Mesh, Table, Variable, from_bytes, read_index, read_sequence,
+from openalea.fspm_tf import (DataStructure, EntitySet, Frame, Mesh, Table, Variable, from_bytes, read_index, read_sequence,
                      to_bytes, write_sequence)
-from fspm_tf.dump import frame_to_dict
-from fspm_tf.glb import unpack
+from openalea.fspm_tf.dump import frame_to_dict
+from openalea.fspm_tf.glb import unpack
 
 
 def same_columns(a, b):

@@ -6,9 +6,9 @@ import pytest
 
 import generate
 from conftest import CONFORMANCE
-from fspm_tf import from_bytes
-from fspm_tf.dump import frame_to_dict
-from fspm_tf.validate import validate_file
+from openalea.fspm_tf import from_bytes
+from openalea.fspm_tf.dump import frame_to_dict
+from openalea.fspm_tf.validate import validate_file
 
 FILES = generate.files()
 

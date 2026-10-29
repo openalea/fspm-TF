@@ -2,7 +2,7 @@
 
 | Platform | Language | Where | Reads | Writes | Specification version |
 |---|---|---|---|---|---|
-| fspm-tf (reference) | Python | this repository, `src/fspm_tf` | yes | yes | 0.1 |
+| openalea.fspm_tf (reference) | Python | this repository, `src/openalea/fspm_tf` | yes | yes | 0.1 |
 | openalea.metafspm | Python | planned: `openalea.metafspm.io.fspm_tf` (phase P2) | planned | planned | |
 | CPlantBox | C++ / Python | planned (phase P4) | | | |
 | GroIMP | Java | | | | |

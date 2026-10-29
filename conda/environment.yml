@@ -1,11 +1,13 @@
 name: fspm_tf
 channels:
+  - openalea3
   - conda-forge
 dependencies:
   - python
   - numpy
   - jsonschema
-  - pytest
   - pip
+  - pytest
+  # let pip install the rest using pyproject.toml (if you are okay with conda/pip mix)
   - pip:
-    - -e ..
+      - -e ..

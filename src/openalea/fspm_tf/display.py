@@ -8,7 +8,7 @@ and never read as state.
 """
 import numpy as np
 
-from fspm_tf.model import Frame, NO_ID
+from openalea.fspm_tf.model import Frame, NO_ID
 
 
 def add_display(frame: Frame, names, entity_set: str = None) -> Frame:

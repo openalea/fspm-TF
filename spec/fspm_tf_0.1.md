@@ -10,11 +10,11 @@ The language-neutral files of this version are part of the specification:
 
 | File | Content |
 |---|---|
-| `src/fspm_tf/schema/fspm_scene.schema.json` | JSON Schema of the `FSPM_scene` extension (§3) |
-| `src/fspm_tf/schema/index.schema.json` | JSON Schema of a sequence's index (§8) |
-| `src/fspm_tf/vocabulary/standard_names.csv` | the standard names, their canonical units and kinds (§6) |
-| `src/fspm_tf/vocabulary/labels.csv` | entity labels, their scales and Plant Ontology terms (§6) |
-| `src/fspm_tf/vocabulary/enums.json` | the values of `edge_type`, `kind`, `role`, data structure and grid kinds; the base scales |
+| `src/openalea/fspm_tf/schema/fspm_scene.schema.json` | JSON Schema of the `FSPM_scene` extension (§3) |
+| `src/openalea/fspm_tf/schema/index.schema.json` | JSON Schema of a sequence's index (§8) |
+| `src/openalea/fspm_tf/vocabulary/standard_names.csv` | the standard names, their canonical units and kinds (§6) |
+| `src/openalea/fspm_tf/vocabulary/labels.csv` | entity labels, their scales and Plant Ontology terms (§6) |
+| `src/openalea/fspm_tf/vocabulary/enums.json` | the values of `edge_type`, `kind`, `role`, data structure and grid kinds; the base scales |
 | `conformance/` | reference files and their expected values (§9) |
 
 ## 1. The data model

@@ -13,18 +13,20 @@ include-package-data = false # force explicit declaration of data (disable autom
 
 # the language-neutral files of the specification, shipped with the package
 [tool.setuptools.package-data]
-fspm_tf = ["schema/*.json", "vocabulary/*.csv", "vocabulary/*.json"]
+"openalea.fspm_tf" = ["schema/*.json", "vocabulary/*.csv", "vocabulary/*.json"]
 
 # enable dynamic version based on git tags
 [tool.setuptools_scm]
 
 [project]
-name = "fspm-tf"
+name = "openalea.fspm_tf"
 authors = [
   { name = "Tristan Gérault", email = "tristan.gerault@inrae.fr" },
 ]
 description = "fspm-TF, an exchange format for whole FSPM scenes: its Python reference codec, validator and vocabulary"
 readme = "README.md"
+license = "CECILL-C"
+license-files = ["LICEN[CS]E*"]
 requires-python = ">=3.9"
 dynamic = ["version"]
 classifiers = [
@@ -34,24 +36,44 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Topic :: Scientific/Engineering",
+  "Framework :: OpenAlea",
 ]
 
-# pip-installable dependencies with the same name on conda (reused by conda/meta.yaml)
+# you can list here all dependencies that are pip-instalable, and that have a name identical to the one used by conda (to allow reuse of this list in meta.yaml)
+# If conda name is different, please do not declare the pip name, and declare conda name in the next section
 dependencies = [
     "numpy",
     "jsonschema",
 ]
 
+# section specific to conda-only distributed package (not used by pip yet)
+[tool.conda.environment]
+
+dependencies = []
+
 [project.optional-dependencies]
 test = [
   "pytest",
 ]
+dev = [
+  "pytest >=6",
+  "pytest-cov >=3",
+]
 
 [project.scripts]
-fspm-tf = "fspm_tf.cli:main"
+fspm-tf = "openalea.fspm_tf.cli:main"
 
 [project.urls]
 Repository = "https://github.com/openalea/fspm-TF"
+Homepage = "https://github.com/openalea/fspm-TF"
+
+[tool.coverage.run]
+source = ["openalea.fspm_tf"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
