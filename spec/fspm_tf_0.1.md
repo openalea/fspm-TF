@@ -114,7 +114,11 @@ A column is one property of the table's class:
   `noData`: the most negative finite value of its type, −1.7976931348623157e308 for FLOAT64 or
   −3.4028234663852886e38 for FLOAT32, stored where the value is NaN. Readers MUST read `noData` back as NaN. A
   column cannot hold both NaN and that value.
-- **Infinities** cannot be written in 0.1.
+- **Infinities.** A float column holding +∞ or −∞ declares, in its class property's `extras`, `FSPM_infinity`:
+  `{"positive": P, "negative": N}`, with P the largest finite value of its type (1.7976931348623157e308 for
+  FLOAT64, 3.4028234663852886e38 for FLOAT32) and N the next value after the most negative one
+  (−1.7976931348623155e308, −3.4028232635611926e38). P is stored where the value is +∞ and N where it is −∞. Readers
+  MUST read them back as infinities. A column cannot hold both infinities and these values.
 - **Precision.** Values MUST be stored at the platform's own precision. A FLOAT64 state is not written as FLOAT32.
 
 ### 4.2 Reserved columns
@@ -257,13 +261,13 @@ sequence:
 | `section_cells` | a cell network: an entity set and a relation with labels and conductances; a string column; vector columns |
 | `soil_and_roots` | a root system, a regular soil grid with z pointing down, and their mapping |
 | `adaptive_soil` | an adaptive grid's leaf cells (`level`, `index`) |
-| `parameter_set` | a `table` data structure with parameters per plant and in the scalars, references and DOIs |
+| `parameter_set` | a `table` data structure with parameters per plant and in the scalars, references and DOIs; an infinite value |
 | `growing_sequence/` | three frames of a growing root system and their index |
 
 An implementation conforms to 0.1 when two things hold:
 
 - **Reading:** what it reads from every conformance GLB equals the expected JSON. Floats are compared exactly; NaN is
-  null in the JSON; positions are the FLOAT32 values.
+  null in the JSON, +∞ and −∞ the strings `"Infinity"` and `"-Infinity"`; positions are the FLOAT32 values.
 - **Writing:** what it writes passes `fspm-tf validate` with no error, and Khronos' glTF-Validator with no error.
 
 ## 10. Keeping what one does not read

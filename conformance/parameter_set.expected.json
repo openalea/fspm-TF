@@ -64,6 +64,13 @@
         5,
         3
        ]
+      },
+      "offered_mass": {
+       "dtype": "float64",
+       "values": [
+        "Infinity",
+        0.0025
+       ]
       }
      },
      "variables": {
@@ -83,6 +90,12 @@
        "unit": "1",
        "role": "parameter",
        "kind": "descriptor"
+      },
+      "offered_mass": {
+       "unit": "g/d",
+       "role": "input",
+       "kind": "extensive",
+       "description": "structural mass offered to the roots per day (inf: unlimited)"
       }
      },
      "rank": 1

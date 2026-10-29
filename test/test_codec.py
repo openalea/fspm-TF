@@ -61,6 +61,7 @@ def test_glb_layout():
 
 def test_column_types():
     columns = dict(id=np.arange(3, dtype=np.int64), f64=np.array([0.1, np.nan, -2.5e-300]),
+                   infinite=np.array([np.inf, -np.inf, np.nan]), infinite32=np.array([1., np.inf, -np.inf], dtype=np.float32),
                    f32=np.array([1.5, np.nan, 3.], dtype=np.float32), i32=np.array([-1, 0, 7], dtype=np.int32),
                    u8=np.array([0, 255, 3], dtype=np.uint8), flag=np.array([True, False, True]),
                    text=np.array(["", "é", "racine latérale"], dtype=object), vector=np.arange(6.).reshape(3, 2))
@@ -81,8 +82,8 @@ def test_many_labels_and_empty_tables():
 def test_values_that_cannot_be_written():
     def frame_with(**columns):
         return Frame([DataStructure("d", kind="table", entity_sets=[EntitySet("E", columns=columns)])])
-    with pytest.raises(ValueError, match="infinite"):
-        to_bytes(frame_with(x=[1., np.inf]))
+    with pytest.raises(ValueError, match="infinities and the values"):
+        to_bytes(frame_with(x=[np.inf, np.finfo(np.float64).max]))
     with pytest.raises(ValueError, match="standing for NaN"):
         to_bytes(frame_with(x=[np.nan, np.finfo(np.float64).min]))
     with pytest.raises(ValueError, match="identifier"):

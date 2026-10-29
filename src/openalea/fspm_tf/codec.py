@@ -34,9 +34,14 @@ MAX_FLOAT_FEATURE = 2 ** 24                     # feature rows are stored as flo
 COMPONENT_TYPES = {np.dtype(name): name.upper() for name in (
     "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float32", "float64")}
 DTYPES = {code: dtype for dtype, code in COMPONENT_TYPES.items()}
-# float NaN is written as noData (EXT_structural_metadata forbids NaN): the most negative finite value
+# EXT_structural_metadata forbids NaN and infinities: NaN is written as noData, the most negative finite value;
+# +inf and -inf as the largest finite value and the next one after the most negative, declared in the property's
+# extras (FSPM_infinity)
 NO_DATA_FLOAT = {np.dtype("float64"): float(np.finfo(np.float64).min),
                  np.dtype("float32"): float(np.finfo(np.float32).min)}
+INFINITY_FLOAT = {dtype: {"positive": float(np.finfo(dtype).max),
+                          "negative": float(np.nextafter(np.finfo(dtype).min, dtype.type(0)))}
+                  for dtype in (np.dtype("float64"), np.dtype("float32"))}
 
 
 # ── Writing ──────────────────────────────────────────────────────────────
@@ -203,7 +208,14 @@ def _encode_table(table: Table, class_id: str, buffers: BufferBuilder, schema: d
             data = column
             if column.dtype.kind == "f":
                 if np.isinf(column).any():
-                    raise ValueError(f"column '{name}' of '{table.name}': infinite values cannot be written")
+                    stand_ins = INFINITY_FLOAT[column.dtype]
+                    if np.isin(column, list(stand_ins.values())).any():
+                        raise ValueError(f"column '{name}' of '{table.name}' holds both infinities and the values "
+                                         f"standing for them ({stand_ins})")
+                    prop["extras"] = {"FSPM_infinity": stand_ins}
+                    data = np.where(column == np.inf, stand_ins["positive"],
+                                    np.where(column == -np.inf, stand_ins["negative"], column)).astype(column.dtype)
+                    column = data
                 if np.isnan(column).any():
                     no_data = NO_DATA_FLOAT[column.dtype]
                     if (column == no_data).any():
@@ -385,6 +397,11 @@ def _decode_table(document: dict, binary: bytes, description: dict, schema: dict
                 column = column.reshape(count, width)
             if dtype.kind == "f" and "noData" in prop:
                 column = np.where(column == np.asarray(prop["noData"], dtype=dtype), np.nan, column).astype(dtype)
+            infinity = prop.get("extras", {}).get("FSPM_infinity")
+            if dtype.kind == "f" and infinity:
+                column = np.where(column == np.asarray(infinity["positive"], dtype=dtype), np.inf,
+                                  np.where(column == np.asarray(infinity["negative"], dtype=dtype), -np.inf, column)
+                                  ).astype(dtype)
         else:
             raise ValueError(f"'{class_id}.{name}': property type {prop['type']} is not part of fspm-TF 0.1")
         columns[name] = column

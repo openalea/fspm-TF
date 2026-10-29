@@ -3,7 +3,8 @@ A frame as plain JSON values: every table's columns as lists, declarations, grid
 conformance files' expected values (*.expected.json) are written with it, so that a reader in any language can
 compare what it reads with them.
 
-    frame_to_dict(frame) -> dict        NaN as null; floats as the shortest decimal giving the same double
+    frame_to_dict(frame) -> dict        NaN as null, ±∞ as "Infinity" / "-Infinity"; floats as the shortest decimal
+                                        giving the same double
 """
 import math
 
@@ -14,6 +15,8 @@ from openalea.fspm_tf.model import Frame, Table
 
 def _value(value):
     if isinstance(value, (float, np.floating)):
+        if math.isinf(value):
+            return "Infinity" if value > 0 else "-Infinity"         # standard JSON has no infinities
         return None if math.isnan(value) else float(value)
     if isinstance(value, (np.integer,)):
         return int(value)

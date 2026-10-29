@@ -243,14 +243,18 @@ def adaptive_soil() -> Frame:
 
 
 def parameter_set() -> Frame:
-    """A parameter set: no geometry, scalars shared by every plant and one parameter value per plant."""
+    """A parameter set: no geometry, scalars shared by every plant and one parameter value per plant (an infinite
+    one among them)."""
     plants = EntitySet("Plant", rank=1, columns=dict(
         id=np.array([1, 2], dtype=np.int64), label=np.array(["Wheat", "Wheat"], dtype=object),
-        EL=np.array([6.5e-4, 8.0e-4]), n_seminal_roots=np.array([5, 3], dtype=np.int64)),
+        EL=np.array([6.5e-4, 8.0e-4]), n_seminal_roots=np.array([5, 3], dtype=np.int64),
+        offered_mass=np.array([np.inf, 2.5e-3])),
         variables=_declare(
             EL=dict(unit="m/(s.m)", role="parameter", kind="intensive", description="elongation rate per tip "
                     "diameter", references=("Pagès et al. 2014",), doi=("10.1093/aob/mct302",)),
-            n_seminal_roots=dict(unit="1", role="parameter", kind="descriptor")))
+            n_seminal_roots=dict(unit="1", role="parameter", kind="descriptor"),
+            offered_mass=dict(unit="g/d", role="input", kind="extensive",
+                              description="structural mass offered to the roots per day (inf: unlimited)")))
     scalars = Table("scalars", columns=dict(D_ini=[1.2e-3], T_ref=[293.15], method=np.array(["euler"], dtype=object)),
                     variables=_declare(D_ini=dict(unit="m", role="parameter", standard_name="radius",
                                                   kind="intensive", minimum=1e-4, maximum=5e-3,

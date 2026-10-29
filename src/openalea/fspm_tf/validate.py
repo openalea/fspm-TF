@@ -349,8 +349,6 @@ def _check_grid(data_structure, sets: dict, report) -> None:
 def _check_variables(where, table, standard_names: dict, enums: dict, report) -> None:
     for name in table.columns:
         values = table.columns[name]
-        if values.dtype.kind == "f" and np.isinf(values).any():
-            report.error(f"{where}/{name}", "infinite values")
     for name in table.variable_names():
         if name not in table.variables:
             report.warning(f"{where}/{name}", "not declared: no unit, kind or role")
