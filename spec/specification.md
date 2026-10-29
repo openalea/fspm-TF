@@ -31,6 +31,10 @@ The language-neutral files of this version are part of the specification:
   | `table` | entity sets without topology, e.g. a parameter set |
 
   Its `origin` is a 4×4 matrix placing its coordinates in the scene's frame.
+- **The scene's frame** is right-handed, in metres, with **z up**: z = 0 at the soil surface, negative below it.
+  Every position (meshes, the segment ends of the vocabulary's `proximal_end_*` and `distal_end_*`, grid origins and
+  spacings) is in metres. A platform with other axes or units (e.g. y up, or centimetres) converts its coordinates, or
+  puts the conversion in the data structure's origin.
 - An **entity set** is a table: one row per entity, one column per variable. A graph has one entity set per scale,
   with that scale's `rank` (coarser scales have smaller ranks). A grid's cells form one entity set, with no rank.
 - A **relation** is an edge table between two entity sets of the same data structure. Examples: a cell network, or
@@ -52,8 +56,11 @@ A frame MUST be a GLB file (glTF 2.0 binary):
    spaces and the binary chunk with zeros to 8 bytes, as `EXT_structural_metadata` requires.
 3. `extensionsUsed` MUST list `FSPM_scene` and `EXT_structural_metadata`, plus `EXT_mesh_features` when there are
    meshes. `FSPM_scene` SHOULD NOT be listed in `extensionsRequired`, so that every glTF viewer opens the file.
-4. The glTF scene MUST have one root node per data structure, named after its `id`. That node carries the data
-   structure's origin as its `matrix` when the origin is not the identity. The node's children each hold one of the
+4. The glTF scene's root node, `fspm_scene`, turns the scene's frame (z up) into glTF's (y up), so that glTF viewers
+   show the scene upright: its `matrix` is a rotation of −90° about x (column-major
+   `[1,0,0,0, 0,0,-1,0, 0,1,0,0, 0,0,0,1]`). It is for viewers only: readers of the tables, and `FSPM_scene`'s
+   origins, use the scene's frame. Under it, one node per data structure, named after its `id`, carries the data
+   structure's origin as its `matrix` when the origin is not the identity; that node's children each hold one of the
    data structure's meshes.
 5. The file SHOULD be valid glTF for Khronos' glTF-Validator: no errors.
 
@@ -158,6 +165,11 @@ Rules on these columns:
 - `parent` and `edge_type` go together. `edge_type` is `none` exactly where `parent` is −1. The parents MUST form no
   cycle.
 - Every id referred to MUST exist in the entity set referred to.
+- `parent` links entities of the same scale. When an axis's first entity grows on an entity of another scale (in an
+  MTG, a branch axis's first internode, linked to its bearer only through the axes), its `parent` is −1. Its bearer
+  MAY be written as a relation named `bearer`, from the entity to the one it is borne on.
+- Other links between entities are relations, one per kind of link. A pair of entities linked in several ways (e.g. a
+  successor edge that is also a platform's own edge) appears in each of these relations.
 - Each label column or relation column is an `ENUM` of its own, listing the values used. The enum
   `FSPM_edge_type` is fixed: `none` = 0, `successor` = 1, `branch` = 2.
 - A grid's cells MAY omit `id`; their ids are then their row numbers. A regular grid's rows are its cells in C order
@@ -190,6 +202,7 @@ Units are UCUM codes, with:
 - SI and common atoms (`m`, `g`, `s`, `K`, `mol`, `Pa`, `J`, `W`, `L`, `Cel`, `min`, `h`, `d`, `a`, `deg`, `%`,
   ...);
 - metric prefixes on the metric atoms (`mm`, `umol`, `MPa`, `hPa`, ...);
+- pressures as heights of water or mercury: `m[H2O]`, `m[Hg]`, with prefixes (`cm[H2O]`, `mm[Hg]`);
 - products `.`, quotients `/`, integer exponents (`m2`, `s-1`), parentheses, annotations `{...}`, and `1`.
 
 `Cel` cannot be combined with other units: thermal time is in `K.d`. No spaces are allowed:
@@ -248,7 +261,8 @@ A sequence is a folder holding one GLB per frame and an index, `scene.fspm.json`
   index's.
 - **Ids across frames.** An entity keeps its id from frame to frame. An id whose entity has disappeared MUST NOT be
   given to another entity in a later frame of the same data structure and entity set. Labels and parents MAY change,
-  e.g. an apex moved by growth.
+  e.g. an apex moved by growth. A platform whose own ids may come back (a counter restarted, a deleted maximum's id
+  given again) keeps, across a sequence, a map from its entities to the ids it writes.
 - **Packing.** Packing a sequence into one GLB is not part of 0.1.
 
 ## 9. Conformance

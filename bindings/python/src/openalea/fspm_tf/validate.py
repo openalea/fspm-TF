@@ -16,7 +16,8 @@ import jsonschema
 import numpy as np
 
 from openalea.fspm_tf import schema as schemas, ucum, vocabulary
-from openalea.fspm_tf.codec import (DTYPES, EDGE_TYPE_ENUM, EXTENSION, FEATURES, METADATA, from_bytes)
+from openalea.fspm_tf.codec import (DTYPES, EDGE_TYPE_ENUM, EXTENSION, FEATURES, METADATA, Z_UP_TO_Y_UP,
+                                    from_bytes)
 from openalea.fspm_tf.glb import unpack
 from openalea.fspm_tf.model import EDGE_TYPES, NO_ID
 
@@ -95,6 +96,11 @@ def _check_document(document: dict, binary: bytes, report: Report) -> bool:
             report.error("extensionsUsed", f"must list {name}")
     if EXTENSION in document.get("extensionsRequired", []):
         report.warning("extensionsRequired", f"{EXTENSION} should not be required, so that any viewer opens the file")
+    roots = [document.get("nodes", [])[index] for index in document.get("scenes", [{}])[0].get("nodes", [])
+             if index < len(document.get("nodes", []))]
+    if not any(node.get("name") == "fspm_scene" and node.get("matrix") == Z_UP_TO_Y_UP for node in roots):
+        report.warning("scenes", "no root node fspm_scene turning the scene (z up) to glTF's y up: viewers will show it "
+                                 "lying down")
     extensions = document.get("extensions", {})
     if EXTENSION not in extensions:
         report.error("extensions", f"no {EXTENSION} extension: not an fspm-TF file")

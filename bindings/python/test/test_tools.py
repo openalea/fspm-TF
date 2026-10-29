@@ -10,7 +10,8 @@ from openalea.fspm_tf.display import add_display, remove_display
 
 @pytest.mark.parametrize("code, other", [("mm3/(s.MPa)", "m3/(s.Pa)"), ("cm4/(hPa.d)", "m4/(s.Pa)"),
                                          ("umol/(m2.s)", "mol.m-2.s-1"), ("Cel", "K"), ("m3/m3", "1"),
-                                         ("{leaf}", "1"), ("K.d", "s.K"), ("%", "1")])
+                                         ("{leaf}", "1"), ("K.d", "s.K"), ("%", "1"), ("cm[H2O]", "hPa"),
+                                         ("mm[Hg]", "Pa"), ("cm[H2O]/d", "Pa/s")])
 def test_convertible(code, other):
     assert ucum.convertible(code, other)
 
