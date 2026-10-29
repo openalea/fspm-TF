@@ -61,7 +61,7 @@ A frame MUST be a GLB file (glTF 2.0 binary):
 
 The glTF root's `extensions.FSPM_scene` MUST follow `fspm_scene.schema.json`:
 
-```json
+```text
 {
  "version": "0.1",
  "vocabulary": "0.1",
@@ -239,7 +239,7 @@ two platforms.
 
 A sequence is a folder holding one GLB per frame and an index, `scene.fspm.json`, following `index.schema.json`:
 
-```json
+```text
 {"fspmIndex": "0.1", "timeUnit": "d",
  "frames": [{"time": 0.0, "step": 0, "file": "frame_000000.glb"}, ...]}
 ```

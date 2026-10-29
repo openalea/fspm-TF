@@ -1,7 +1,7 @@
 """
 Display copies: float32 per-vertex copies of variables, for viewers that do not read the property tables
 (ParaView without the fspm-TF plugin, Blender, three.js). They are added from the tables, flagged in FSPM_scene,
-and never read as state.
+and never read as state::
 
     add_display(frame, ["water_potential"])     each mesh gets a _WATER_POTENTIAL attribute
     remove_display(frame)                       every display copy removed

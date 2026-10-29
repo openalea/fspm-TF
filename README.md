@@ -13,6 +13,9 @@ interface for coupling components across platforms.
 
 Status: specification 0.1, draft.
 
+- [The documentation](docs/index.md): for users (viewing, checking, Python) and for platform developers
+  (implementing a codec, conformance, changing the format), built with Sphinx (`.readthedocs.yml`; locally:
+  `python -m sphinx -b html docs docs/_build`)
 - [The specification](spec/specification.md)
 - [The design note](docs/design_note.md): the review of existing formats and the decisions taken
 - [Implementations](implementations.md)

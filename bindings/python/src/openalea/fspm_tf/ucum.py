@@ -1,7 +1,7 @@
 """
 Units as UCUM codes (https://ucum.org), the subset fspm-TF accepts: SI and common atoms, metric prefixes on the
 metric ones, products ('.'), quotients ('/'), integer exponents, parentheses, annotations ({...}, dimensionless) and
-'1'. dimension(code) gives a unit's dimension, to check that two units are convertible.
+'1'. dimension(code) gives a unit's dimension, to check that two units are convertible::
 
     dimension("mm3/(s.MPa)") == dimension("m4.s.kg-1")      True: the same physical dimension
 """

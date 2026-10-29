@@ -1,6 +1,6 @@
 """
 The fspm-TF validator: the checks a file must pass to follow the specification, beyond being valid glTF (which
-Khronos' glTF-Validator checks).
+Khronos' glTF-Validator checks)::
 
     validate_file(path) -> Report        a .glb frame, or a sequence's scene.fspm.json (each frame, and across them)
     validate_bytes(data) -> Report       a frame's bytes

@@ -69,6 +69,13 @@ def test_column_types():
     same_columns(frame.data_structures[0].entity_sets[0], from_bytes(to_bytes(frame)).data_structures[0].entity_sets[0])
 
 
+def test_ids_are_int64_whatever_the_default_integer():
+    segments = EntitySet("E", columns=dict(id=np.array([1, 2], dtype=np.int32), parent=np.array([-1, 1], dtype=np.int32),
+                                           edge_type=["none", "successor"], value=np.array([3, 4], dtype=np.int32)))
+    assert segments.columns["id"].dtype == segments.columns["parent"].dtype == np.int64
+    assert segments.columns["value"].dtype == np.int32                     # a variable keeps its type
+
+
 def test_many_labels_and_empty_tables():
     labels = np.array([f"L{i}" for i in range(300)], dtype=object)
     full = EntitySet("Big", columns=dict(id=np.arange(300, dtype=np.int64), label=labels))

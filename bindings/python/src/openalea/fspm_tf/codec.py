@@ -1,5 +1,5 @@
 """
-Reading and writing fspm-TF frames as GLB files, and sequences of frames with their index.
+Reading and writing fspm-TF frames as GLB files, and sequences of frames with their index::
 
     write(path, frame)           a Frame to a .glb file          to_bytes(frame) -> bytes
     read(path) -> Frame          a .glb file to a Frame          from_bytes(data) -> Frame

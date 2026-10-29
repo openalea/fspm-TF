@@ -1,5 +1,5 @@
 """
-The fspm-TF vocabulary (spec/vocabulary/):
+The fspm-TF vocabulary (spec/vocabulary/)::
 
     standard_names.csv    the standard names: canonical unit (UCUM), kind, I-ADOPT decomposition, scales, definition,
                           and the names each platform gives the quantity (one column per platform)

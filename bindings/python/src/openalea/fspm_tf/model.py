@@ -1,5 +1,5 @@
 """
-The fspm-TF data model in Python: plain dataclasses holding numpy columns.
+The fspm-TF data model in Python: plain dataclasses holding numpy columns::
 
     Frame                one time step of a scene
       DataStructure      one plant population's graph, or one environment model's grid
@@ -27,6 +27,7 @@ RESERVED = {
     "mapping": ("source", "target", "weight"),
     "scalars": (),
 }
+ID_COLUMNS = ("id", "complex", "parent", "source", "target", "level", "index")   # reserved columns of ids, int64
 EDGE_TYPES = ("none", "successor", "branch")    # MTG: root of its scale, '<', '+'
 ENUM_COLUMNS = ("label", "edge_type", "relation")
 DATA_STRUCTURE_KINDS = ("graph", "regular_grid", "adaptive_grid", "table")
@@ -60,6 +61,9 @@ class Table:
 
     def __post_init__(self):
         self.columns = {name: _as_column(name, values) for name, values in self.columns.items()}
+        for name in set(self.columns) & set(ID_COLUMNS) & set(self.reserved):    # ids are int64, whatever the platform's
+            if self.columns[name].dtype.kind in "iu":                            # default integer
+                self.columns[name] = self.columns[name].astype(np.int64)
         counts = {name: len(values) for name, values in self.columns.items()}
         if len(set(counts.values())) > 1:
             raise ValueError(f"table '{self.name}': columns of different lengths {counts}")

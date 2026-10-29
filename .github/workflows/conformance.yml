@@ -34,3 +34,15 @@ jobs:
           for file in conformance/*.glb conformance/growing_sequence/*.glb; do
             ./gltf_validator "$file" || exit 1
           done
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install openalea.fspm_tf and the documentation's tools
+        run: python -m pip install numpy jsonschema sphinx pydata-sphinx-theme myst-parser sphinx-favicon sphinx-copybutton .
+      - name: Build the documentation, warnings as errors
+        run: python -m sphinx -b html docs docs/_build -W --keep-going

@@ -1,7 +1,7 @@
 """
 A frame as plain JSON values: every table's columns as lists, declarations, grids, mappings, meshes. The
-conformance files' expected values (*.expected.json) are written with it, so that a reader in any language can
-compare what it reads with them.
+conformance files' expected values (``*.expected.json``) are written with it, so that a reader in any language can
+compare what it reads with them::
 
     frame_to_dict(frame) -> dict        NaN as null, ±∞ as "Infinity" / "-Infinity"; floats as the shortest decimal
                                         giving the same double

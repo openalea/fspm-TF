@@ -114,3 +114,7 @@ examples/**/outputs/
 
 # glTF-Validator reports
 *.report.json
+
+# the documentation build, and its pages generated from spec/vocabulary
+docs/_build/
+docs/_generated/
