@@ -2,8 +2,10 @@
 
 *An exchange format for whole FSPM scenes, across platforms and languages.*
 
-Status: draft for discussion, 2026-10-29. Nothing here is decided until the partner platforms agree. Points marked
-**[decision]** are open; points marked **[to verify]** have not been checked on real files or code yet.
+Status (2026-10-29): the decisions of §7 are taken on the metafspm side; P1 to P3 are done (§6). The specification
+itself is `spec/specification.md`, version 0.1, a draft until the partner platforms have reviewed it. This note keeps
+the review of the existing formats and the reasons for the choices; where the two differ, the specification is the
+reference. Points marked **[to verify]** have not been checked on real files or code yet.
 
 ## 1. Purpose
 
@@ -276,8 +278,24 @@ exporter is the same walk, with the arrays written into a GLB's binary chunk ins
 
 The following are **not** exchanged; they stay in metafspm's own checkpoint:
 
-- derivation formulas, mask rules and object-dtype variables that are not strings, since these are code;
+- derivation formulas and mask rules, since these are code;
 - the random streams' counters.
+
+**As implemented in P2** (`openalea.metafspm.io.fspm_tf`):
+
+- **Every MPG scale holding vertices is an entity set**, Compartments included; the Connections are a relation, with
+  their vids as ids. `complex` is the containing entity in any coarser set: a wall Compartment belongs to its
+  segment, which is why the specification lets `complex` point past the nearest scale.
+- **Every MPG property and every variable is a column.** Object values other than text are JSON text. Infinities use
+  the specification's stand-ins.
+- **What only metafspm needs to rebuild its MPG exactly** stays metafspm's own, for other platforms to ignore:
+  - the raw MPG links, as the `metafspm_complex`, `metafspm_parent` and `metafspm_edge_type` columns;
+  - the label codes, the variable metadata and the construction arguments, as `extras["metafspm"]`.
+- **Standard names** come from the vocabulary's `metafspm` column.
+- **Meshes:** the DataStructure's triangles are a mesh, and so is each component's `display_triangles()`. These are
+  shapes for display only, e.g. GRANAP's sections.
+- **Result:** the scenes of ArchiSimple, Adel, Caribu, GRANAP and MECHA rebuild bit for bit, and a simulation
+  continues from a frame as from the original.
 
 ### 4.4 The glTF binding
 
@@ -399,16 +417,24 @@ metafspm's DataStructures already hold one numpy array per variable and location
 - **Export** is about `array.tobytes()` per column, plus a JSON schema built once per topology version.
 - **Import** is `np.frombuffer` per column.
 
-For 10⁵ entities × 50 float64 variables (40 MB), both are memory copies, on the order of 10–100 ms **[to verify by
-benchmark]**: negligible at output frequency.
+For 10⁵ entities × 50 float64 variables (40 MB), both are memory copies, on the order of 10–100 ms. Measured in P2,
+everything included (the MPG's links and properties, the geometry, the JSON), on ArchiSimple's 15-day root system
+(19,519 nodes, 303k mesh vertices, a 27 MB file):
+
+| Step | Time |
+|---|---|
+| `scene_to_frame` | 0.47 s |
+| writing the GLB | 0.09 s |
+| reading it | 0.03 s |
+| `from_frame` | 0.25 s |
 
 A DataStructure *backed* by a glTF buffer would have to keep the JSON and the buffer layout consistent through every
 `set`, every growth and every `register`. That reimplements what the numpy store does, with no gain in exactness or
-speed. **Recommendation: no backing DataStructure.** Provide instead:
+speed. **Recommendation: no backing DataStructure.** Provide instead (all done in P2):
 
-- `export_frame(scene or data structures, path)` and `import_frame(path) -> data structures`, in metafspm's `io`
-  module, on top of the `openalea.fspm_tf` codec (§5.1);
-- a `SceneRecorder` option writing frames every N steps;
+- `export_frame(path, data structures)`, `export_scene(path, scene)` and `import_frame(path) -> data structures`, in
+  metafspm's `io` module, on top of the `openalea.fspm_tf` codec (§5.1);
+- a `SceneRecorder` option writing frames every N steps: `Scene(frame_period=N)`;
 - the round-trip test as the contract: export → import gives the same ids, topology, values (bit for bit), metadata
   and mappings, for every DataStructure type and location;
 - later, `to_arrow()` and `from_arrow()` on the same walk, for coupling.
@@ -528,14 +554,14 @@ the specification version each one passes. fspm-TF itself maintains only Python.
 
 ## 6. Plan
 
-| Phase | Content | Done when |
-|---|---|---|
-| P0 | This note, discussed with the partner platforms | the [decision] points settled |
-| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `openalea.fspm_tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files |
-| P2 | metafspm reference implementation: `export_frame` and `import_frame` for MPG, Array and AdaptiveGrid DataStructures, mappings and triangles | round-trip tests bit-exact on the ported models' scenes (ArchiSimple, Adel, Caribu, GRANAP and MECHA, soil) |
-| P3 | The ParaView reader plugin (Python, on the `openalea.fspm_tf` codec: every variable as cell data, frames as time steps); viewer checks of display copies: ParaView without the plugin, three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
-| P4 | A second platform: CPlantBox through its Python layer (the easiest), or VPL through PlantGeom.jl | a file written by one platform and read by the other, with the same values |
-| P5 | Arrow binding and coupling protocol; a two-platform coupled run | one component in metafspm and one in another platform exchanging tables at each step |
+| Phase | Content | Done when | Status |
+|---|---|---|---|
+| P0 | This note, discussed with the partner platforms | the [decision] points settled | decisions taken on the metafspm side; review by the partners to come |
+| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `openalea.fspm_tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files | done |
+| P2 | metafspm reference implementation: `export_frame` and `import_frame` for MPG, Array and AdaptiveGrid DataStructures, mappings and triangles | round-trip tests bit-exact on the ported models' scenes (ArchiSimple, Adel, Caribu, GRANAP and MECHA, soil) | done, with `Scene(frame_period=)`; the continuation after an import is exact too |
+| P3 | The ParaView reader plugin (Python, on the `openalea.fspm_tf` codec: every variable as cell data, frames as time steps); viewer checks of display copies: ParaView without the plugin, three.js/3DTilesRenderer, Blender | the example files viewed with their variables | ParaView done (6.0.1, the plugin and ParaView's own glTF reader); three.js and Blender skipped |
+| P4 | A second platform: CPlantBox through its Python layer (the easiest), or VPL through PlantGeom.jl | a file written by one platform and read by the other, with the same values | not started |
+| P5 | Arrow binding and coupling protocol; a two-platform coupled run | one component in metafspm and one in another platform exchanging tables at each step | not started |
 
 ## 7. Open decisions
 
