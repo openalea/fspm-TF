@@ -1,0 +1,403 @@
+{
+ "time": 12.5,
+ "time_unit": "d",
+ "step": 300,
+ "data_structures": [
+  {
+   "id": "shoot",
+   "kind": "graph",
+   "origin": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.5
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.25
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "entity_sets": [
+    {
+     "name": "Plant",
+     "count": 1,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        1
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "Wheat"
+       ]
+      }
+     },
+     "rank": 1
+    },
+    {
+     "name": "Axis",
+     "count": 1,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        10
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "ShootAxis"
+       ]
+      },
+      "complex": {
+       "dtype": "int64",
+       "values": [
+        1
+       ]
+      }
+     },
+     "rank": 2
+    },
+    {
+     "name": "Organ",
+     "count": 3,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        20,
+        21,
+        22
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "StemInternode",
+        "Sheath",
+        "Blade"
+       ]
+      },
+      "complex": {
+       "dtype": "int64",
+       "values": [
+        10,
+        10,
+        10
+       ]
+      },
+      "parent": {
+       "dtype": "int64",
+       "values": [
+        -1,
+        20,
+        21
+       ]
+      },
+      "edge_type": {
+       "dtype": "string",
+       "values": [
+        "none",
+        "branch",
+        "successor"
+       ]
+      },
+      "length": {
+       "dtype": "float64",
+       "values": [
+        0.02,
+        0.05,
+        0.15
+       ]
+      }
+     },
+     "variables": {
+      "length": {
+       "unit": "m",
+       "role": "state",
+       "standard_name": "length",
+       "kind": "extensive"
+      }
+     },
+     "rank": 5
+    },
+    {
+     "name": "SubOrgan",
+     "count": 4,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        30,
+        31,
+        32,
+        33
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "StemElement",
+        "LeafElement",
+        "LeafElement",
+        "LeafElement"
+       ]
+      },
+      "complex": {
+       "dtype": "int64",
+       "values": [
+        20,
+        22,
+        22,
+        22
+       ]
+      },
+      "parent": {
+       "dtype": "int64",
+       "values": [
+        -1,
+        -1,
+        31,
+        32
+       ]
+      },
+      "edge_type": {
+       "dtype": "string",
+       "values": [
+        "none",
+        "none",
+        "successor",
+        "successor"
+       ]
+      },
+      "area": {
+       "dtype": "float64",
+       "values": [
+        0.0,
+        0.00015,
+        0.00014,
+        9e-05
+       ]
+      },
+      "green_area": {
+       "dtype": "float64",
+       "values": [
+        0.0,
+        0.00015,
+        0.00014,
+        5e-05
+       ]
+      },
+      "PARa": {
+       "dtype": "float64",
+       "values": [
+        null,
+        812.5,
+        640.25,
+        301.0
+       ]
+      },
+      "inclination": {
+       "dtype": "float64",
+       "values": [
+        0.0,
+        35.0,
+        50.0,
+        70.0
+       ]
+      }
+     },
+     "variables": {
+      "area": {
+       "unit": "m2",
+       "role": "state",
+       "standard_name": "surface_area",
+       "kind": "extensive"
+      },
+      "green_area": {
+       "unit": "m2",
+       "role": "state",
+       "standard_name": "green_area",
+       "kind": "extensive"
+      },
+      "PARa": {
+       "unit": "umol/(m2.s)",
+       "role": "input",
+       "standard_name": "absorbed_par_photon_flux_density",
+       "kind": "intensive",
+       "description": "absorbed PAR (NaN: an element without a surface to light)"
+      },
+      "inclination": {
+       "unit": "deg",
+       "role": "state",
+       "standard_name": "inclination",
+       "kind": "descriptor"
+      }
+     },
+     "rank": 6
+    }
+   ],
+   "platform": "fspm-tf",
+   "model": "toy shoot",
+   "meshes": [
+    {
+     "name": "leaves",
+     "positions_float32": [
+      [
+       0.0,
+       -0.004000000189989805,
+       0.10000000149011612
+      ],
+      [
+       0.05000000074505806,
+       -0.004000000189989805,
+       0.125
+      ],
+      [
+       0.05000000074505806,
+       0.004000000189989805,
+       0.125
+      ],
+      [
+       0.0,
+       -0.004000000189989805,
+       0.10000000149011612
+      ],
+      [
+       0.05000000074505806,
+       0.004000000189989805,
+       0.125
+      ],
+      [
+       0.0,
+       0.004000000189989805,
+       0.10000000149011612
+      ],
+      [
+       0.05000000074505806,
+       -0.003000000026077032,
+       0.125
+      ],
+      [
+       0.10000000149011612,
+       -0.003000000026077032,
+       0.15000000596046448
+      ],
+      [
+       0.10000000149011612,
+       0.003000000026077032,
+       0.15000000596046448
+      ],
+      [
+       0.05000000074505806,
+       -0.003000000026077032,
+       0.125
+      ],
+      [
+       0.10000000149011612,
+       0.003000000026077032,
+       0.15000000596046448
+      ],
+      [
+       0.05000000074505806,
+       0.003000000026077032,
+       0.125
+      ],
+      [
+       0.10000000149011612,
+       -0.0020000000949949026,
+       0.15000000596046448
+      ],
+      [
+       0.15000000596046448,
+       -0.0020000000949949026,
+       0.17499999701976776
+      ],
+      [
+       0.15000000596046448,
+       0.0020000000949949026,
+       0.17499999701976776
+      ],
+      [
+       0.10000000149011612,
+       -0.0020000000949949026,
+       0.15000000596046448
+      ],
+      [
+       0.15000000596046448,
+       0.0020000000949949026,
+       0.17499999701976776
+      ],
+      [
+       0.10000000149011612,
+       0.0020000000949949026,
+       0.15000000596046448
+      ]
+     ],
+     "feature_rows": {
+      "SubOrgan": [
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "Organ": [
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "mappings": []
+}

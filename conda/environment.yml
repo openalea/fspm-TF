@@ -1,0 +1,11 @@
+name: fspm_tf
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - jsonschema
+  - pytest
+  - pip
+  - pip:
+    - -e ..

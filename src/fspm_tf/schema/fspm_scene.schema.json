@@ -1,0 +1,99 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/openalea/fspm-TF/schema/0.1/fspm_scene.schema.json",
+ "title": "FSPM_scene",
+ "description": "The FSPM_scene root extension of a glTF 2.0 asset (fspm-TF 0.1): one frame of a scene.",
+ "type": "object",
+ "required": ["version", "frame", "dataStructures"],
+ "properties": {
+  "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+  "vocabulary": {"type": "string"},
+  "frame": {
+   "type": "object", "required": ["time", "timeUnit", "step"],
+   "properties": {"time": {"type": "number"}, "timeUnit": {"type": "string", "minLength": 1},
+                  "step": {"type": "integer", "minimum": 0}},
+   "additionalProperties": false},
+  "writer": {"type": "object"},
+  "dataStructures": {"type": "array", "items": {"$ref": "#/$defs/dataStructure"}},
+  "mappings": {"type": "array", "items": {"$ref": "#/$defs/mapping"}},
+  "variables": {
+   "type": "object",
+   "propertyNames": {"$ref": "#/$defs/identifier"},
+   "additionalProperties": {"type": "object", "propertyNames": {"$ref": "#/$defs/identifier"},
+                            "additionalProperties": {"$ref": "#/$defs/variable"}}},
+  "extensions": {"type": "object"},
+  "extras": {}
+ },
+ "additionalProperties": false,
+ "$defs": {
+  "identifier": {"type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"},
+  "index": {"type": "integer", "minimum": 0},
+  "dataStructure": {
+   "type": "object", "required": ["id", "kind", "origin", "node", "entitySets"],
+   "properties": {
+    "id": {"$ref": "#/$defs/identifier"},
+    "kind": {"enum": ["graph", "regular_grid", "adaptive_grid", "table"]},
+    "platform": {"type": "string"}, "model": {"type": "string"},
+    "origin": {"type": "array", "items": {"type": "number"}, "minItems": 16, "maxItems": 16},
+    "node": {"$ref": "#/$defs/index"},
+    "entitySets": {"type": "array", "items": {
+     "type": "object", "required": ["name", "propertyTable"],
+     "properties": {"name": {"$ref": "#/$defs/identifier"}, "rank": {"type": ["integer", "null"]},
+                    "propertyTable": {"$ref": "#/$defs/index"}},
+     "additionalProperties": false}},
+    "relations": {"type": "array", "items": {
+     "type": "object", "required": ["name", "sourceSet", "targetSet", "propertyTable"],
+     "properties": {"name": {"$ref": "#/$defs/identifier"}, "sourceSet": {"$ref": "#/$defs/identifier"},
+                    "targetSet": {"$ref": "#/$defs/identifier"}, "propertyTable": {"$ref": "#/$defs/index"}},
+     "additionalProperties": false}},
+    "scalars": {"$ref": "#/$defs/index"},
+    "grid": {"$ref": "#/$defs/grid"},
+    "meshes": {"type": "array", "items": {
+     "type": "object", "required": ["name", "mesh"],
+     "properties": {"name": {"type": "string"}, "mesh": {"$ref": "#/$defs/index"},
+                    "display": {"type": "array", "items": {
+                     "type": "object", "required": ["attribute", "variable"],
+                     "properties": {"attribute": {"type": "string", "pattern": "^_"},
+                                    "variable": {"$ref": "#/$defs/identifier"},
+                                    "entitySet": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}},
+                     "additionalProperties": false}}},
+     "additionalProperties": false}}
+   },
+   "additionalProperties": false},
+  "grid": {
+   "type": "object", "required": ["kind", "shape", "origin", "spacing", "axes", "periodic", "zUp", "cells"],
+   "properties": {
+    "kind": {"enum": ["regular", "adaptive"]},
+    "shape": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 1},
+    "origin": {"type": "array", "items": {"type": "number"}},
+    "spacing": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}},
+    "axes": {"type": "array", "items": {"type": "string"}},
+    "periodic": {"type": "array", "items": {"type": "boolean"}},
+    "zUp": {"type": "boolean"},
+    "maxLevel": {"type": "integer", "minimum": 0},
+    "cells": {"$ref": "#/$defs/identifier"}},
+   "additionalProperties": false},
+  "mapping": {
+   "type": "object", "required": ["name", "source", "target", "propertyTable"],
+   "properties": {
+    "name": {"$ref": "#/$defs/identifier"},
+    "source": {"$ref": "#/$defs/end"}, "target": {"$ref": "#/$defs/end"},
+    "method": {"type": "string"}, "propertyTable": {"$ref": "#/$defs/index"}},
+   "additionalProperties": false},
+  "end": {
+   "type": "object", "required": ["dataStructure", "entitySet"],
+   "properties": {"dataStructure": {"$ref": "#/$defs/identifier"}, "entitySet": {"$ref": "#/$defs/identifier"}},
+   "additionalProperties": false},
+  "variable": {
+   "type": "object", "required": ["unit", "role"],
+   "properties": {
+    "unit": {"type": "string", "minLength": 1},
+    "standardName": {"type": "string"},
+    "kind": {"enum": ["extensive", "intensive", "massic_concentration", "volumic_concentration", "descriptor"]},
+    "role": {"enum": ["state", "input", "parameter", "derived", "setting"]},
+    "minimum": {"type": "number"}, "maximum": {"type": "number"},
+    "references": {"type": "array", "items": {"type": "string"}},
+    "doi": {"type": "array", "items": {"type": "string"}}},
+   "additionalProperties": false}
+ }
+}

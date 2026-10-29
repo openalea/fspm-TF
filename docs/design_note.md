@@ -421,15 +421,16 @@ This repository is platform-neutral, separate from metafspm, like RSML.
 fspm-TF/
   README.md
   docs/design_note.md         this note
-  spec/                       the specification, versioned (v0.1 drafts, then releases)
-  schema/                     JSON Schema of FSPM_scene and of the index file
-  vocabulary/                 standard_names.csv, labels → Plant Ontology, units
+  spec/                       the specification, versioned (fspm_tf_0.1.md)
   src/fspm_tf/                the Python reference package (§5.1): codec, validator, display tool, command line
-  conformance/                the reference files: a root system, a wheat shoot, a MECHA section with cells, a soil
-                              grid with its mapping, a parameter set, a 3-frame growing sequence; each GLB with its
-                              expected values as JSON
-  test/                       pytest: the codec, the validator, the conformance files
+    schema/                   JSON Schema of FSPM_scene and of the index file (language-neutral files, shipped
+    vocabulary/               standard_names.csv, labels.csv, enums.json      with the package and the releases)
+  conformance/                the reference files: a root system, a wheat shoot, a cell network, a soil grid with
+                              its mapping, an adaptive grid, a parameter set, a 3-frame growing sequence; each GLB
+                              with its expected values as JSON; generate.py writes them
+  test/                       pytest: the codec, the validator, the tools, the conformance files
   conda/, pyproject.toml      packaging, as metafspm's
+  .github/workflows/          openalea's conda CI; the conformance job (our validator and Khronos' glTF-Validator)
   implementations.md          pointers to each platform's reader and writer, kept in the platforms' own repositories
 ```
 

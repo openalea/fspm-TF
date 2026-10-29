@@ -1,0 +1,57 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools_scm",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+include-package-data = false # force explicit declaration of data (disable automatic inclusion)
+
+# the language-neutral files of the specification, shipped with the package
+[tool.setuptools.package-data]
+fspm_tf = ["schema/*.json", "vocabulary/*.csv", "vocabulary/*.json"]
+
+# enable dynamic version based on git tags
+[tool.setuptools_scm]
+
+[project]
+name = "fspm-tf"
+authors = [
+  { name = "Tristan Gérault", email = "tristan.gerault@inrae.fr" },
+]
+description = "fspm-TF, an exchange format for whole FSPM scenes: its Python reference codec, validator and vocabulary"
+readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["version"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+]
+
+# pip-installable dependencies with the same name on conda (reused by conda/meta.yaml)
+dependencies = [
+    "numpy",
+    "jsonschema",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[project.scripts]
+fspm-tf = "fspm_tf.cli:main"
+
+[project.urls]
+Repository = "https://github.com/openalea/fspm-TF"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]

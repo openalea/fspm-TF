@@ -1,0 +1,140 @@
+{
+ "time": 0.0,
+ "time_unit": "d",
+ "step": 0,
+ "data_structures": [
+  {
+   "id": "archisimple_parameters",
+   "kind": "table",
+   "origin": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "entity_sets": [
+    {
+     "name": "Plant",
+     "count": 2,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        1,
+        2
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "Wheat",
+        "Wheat"
+       ]
+      },
+      "EL": {
+       "dtype": "float64",
+       "values": [
+        0.00065,
+        0.0008
+       ]
+      },
+      "n_seminal_roots": {
+       "dtype": "int64",
+       "values": [
+        5,
+        3
+       ]
+      }
+     },
+     "variables": {
+      "EL": {
+       "unit": "m/(s.m)",
+       "role": "parameter",
+       "kind": "intensive",
+       "description": "elongation rate per tip diameter",
+       "references": [
+        "Pagès et al. 2014"
+       ],
+       "doi": [
+        "10.1093/aob/mct302"
+       ]
+      },
+      "n_seminal_roots": {
+       "unit": "1",
+       "role": "parameter",
+       "kind": "descriptor"
+      }
+     },
+     "rank": 1
+    }
+   ],
+   "platform": "fspm-tf",
+   "model": "RootArchitecture parameters",
+   "scalars": {
+    "name": "scalars",
+    "count": 1,
+    "columns": {
+     "D_ini": {
+      "dtype": "float64",
+      "values": [
+       0.0012
+      ]
+     },
+     "T_ref": {
+      "dtype": "float64",
+      "values": [
+       293.15
+      ]
+     },
+     "method": {
+      "dtype": "string",
+      "values": [
+       "euler"
+      ]
+     }
+    },
+    "variables": {
+     "D_ini": {
+      "unit": "m",
+      "role": "parameter",
+      "standard_name": "radius",
+      "kind": "intensive",
+      "description": "initial tip diameter, as a radius",
+      "minimum": 0.0001,
+      "maximum": 0.005
+     },
+     "T_ref": {
+      "unit": "K",
+      "role": "parameter",
+      "kind": "intensive"
+     },
+     "method": {
+      "unit": "1",
+      "role": "setting"
+     }
+    }
+   }
+  }
+ ],
+ "mappings": []
+}

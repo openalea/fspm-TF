@@ -1,0 +1,354 @@
+{
+ "time": 0.0,
+ "time_unit": "d",
+ "step": 0,
+ "data_structures": [
+  {
+   "id": "section",
+   "kind": "graph",
+   "origin": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "entity_sets": [
+    {
+     "name": "Compartment",
+     "count": 4,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        0,
+        1,
+        2,
+        3
+       ]
+      },
+      "label": {
+       "dtype": "string",
+       "values": [
+        "SymplasticNode",
+        "SymplasticNode",
+        "SymplasticNode",
+        "ApoplasticNode"
+       ]
+      },
+      "layer": {
+       "dtype": "string",
+       "values": [
+        "Endodermis",
+        "CorticalParenchyma",
+        "CorticalParenchyma",
+        "Epidermis"
+       ]
+      },
+      "cell_area": {
+       "dtype": "float64",
+       "values": [
+        2e-10,
+        3.1e-10,
+        3e-10,
+        5e-11
+       ]
+      },
+      "water_potential": {
+       "dtype": "float64",
+       "values": [
+        -320000.0,
+        -300000.0,
+        -290000.0,
+        -250000.0
+       ]
+      },
+      "centre": {
+       "dtype": "float64",
+       "values": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         1e-05,
+         0.0
+        ],
+        [
+         0.0,
+         1e-05
+        ],
+        [
+         1e-05,
+         1e-05
+        ]
+       ]
+      }
+     },
+     "variables": {
+      "cell_area": {
+       "unit": "m2",
+       "role": "state",
+       "standard_name": "cell_area",
+       "kind": "extensive"
+      },
+      "water_potential": {
+       "unit": "Pa",
+       "role": "state",
+       "standard_name": "water_potential",
+       "kind": "intensive"
+      },
+      "centre": {
+       "unit": "m",
+       "role": "state",
+       "kind": "descriptor",
+       "description": "the cell's centre (x, y)"
+      },
+      "layer": {
+       "unit": "1",
+       "role": "state",
+       "kind": "descriptor",
+       "description": "the cell's tissue"
+      }
+     },
+     "rank": 9
+    }
+   ],
+   "platform": "fspm-tf",
+   "model": "toy cell network",
+   "relations": [
+    {
+     "name": "Connection",
+     "count": 5,
+     "columns": {
+      "source": {
+       "dtype": "int64",
+       "values": [
+        0,
+        1,
+        0,
+        1,
+        2
+       ]
+      },
+      "target": {
+       "dtype": "int64",
+       "values": [
+        1,
+        2,
+        2,
+        3,
+        3
+       ]
+      },
+      "relation": {
+       "dtype": "string",
+       "values": [
+        "SymplasticEdge",
+        "SymplasticEdge",
+        "SymplasticEdge",
+        "ApoplasticEdge",
+        "ApoplasticEdge"
+       ]
+      },
+      "conductance": {
+       "dtype": "float64",
+       "values": [
+        1e-18,
+        2e-18,
+        1.5e-18,
+        4e-17,
+        3e-17
+       ]
+      }
+     },
+     "variables": {
+      "conductance": {
+       "unit": "m3/(s.Pa)",
+       "role": "state",
+       "standard_name": "hydraulic_conductance",
+       "kind": "intensive"
+      }
+     },
+     "source_set": "Compartment",
+     "target_set": "Compartment"
+    }
+   ],
+   "meshes": [
+    {
+     "name": "cells",
+     "positions_float32": [
+      [
+       -3.999999989900971e-06,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       -3.999999989900971e-06,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       -3.999999989900971e-06,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       -3.999999989900971e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       3.999999989900971e-06,
+       0.0
+      ],
+      [
+       -3.999999989900971e-06,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       1.4000000192027073e-05,
+       0.0
+      ],
+      [
+       -3.999999989900971e-06,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       3.999999989900971e-06,
+       1.4000000192027073e-05,
+       0.0
+      ],
+      [
+       -3.999999989900971e-06,
+       1.4000000192027073e-05,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       1.4000000192027073e-05,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       6.000000212225132e-06,
+       0.0
+      ],
+      [
+       1.4000000192027073e-05,
+       1.4000000192027073e-05,
+       0.0
+      ],
+      [
+       6.000000212225132e-06,
+       1.4000000192027073e-05,
+       0.0
+      ]
+     ],
+     "feature_rows": {
+      "Compartment": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       2,
+       2,
+       2,
+       2,
+       2,
+       2,
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "mappings": []
+}

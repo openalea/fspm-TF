@@ -1,0 +1,180 @@
+{
+ "time": 0.0,
+ "time_unit": "d",
+ "step": 0,
+ "data_structures": [
+  {
+   "id": "soil",
+   "kind": "adaptive_grid",
+   "origin": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "entity_sets": [
+    {
+     "name": "Cell",
+     "count": 9,
+     "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+       ]
+      },
+      "level": {
+       "dtype": "int64",
+       "values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+       ]
+      },
+      "index": {
+       "dtype": "int64",
+       "values": [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         0,
+         0,
+         1
+        ],
+        [
+         0,
+         1,
+         0
+        ],
+        [
+         0,
+         1,
+         1
+        ],
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         1,
+         0,
+         1
+        ],
+        [
+         1,
+         1,
+         0
+        ],
+        [
+         1,
+         1,
+         1
+        ],
+        [
+         1,
+         0,
+         0
+        ]
+       ]
+      },
+      "soil_water_potential": {
+       "dtype": "float64",
+       "values": [
+        -20000.0,
+        -19900.0,
+        -19800.0,
+        -19700.0,
+        -19600.0,
+        -19500.0,
+        -19400.0,
+        -19300.0,
+        -19200.0
+       ]
+      }
+     },
+     "variables": {
+      "soil_water_potential": {
+       "unit": "Pa",
+       "role": "state",
+       "standard_name": "soil_water_potential",
+       "kind": "intensive"
+      }
+     },
+     "rank": null
+    }
+   ],
+   "platform": "fspm-tf",
+   "model": "toy adaptive soil",
+   "grid": {
+    "kind": "adaptive",
+    "shape": [
+     2,
+     1,
+     1
+    ],
+    "origin": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "spacing": [
+     0.1,
+     0.1,
+     0.1
+    ],
+    "axes": [
+     "x",
+     "y",
+     "z"
+    ],
+    "periodic": [
+     false,
+     false,
+     false
+    ],
+    "z_up": false,
+    "max_level": 1,
+    "cells": "Cell"
+   }
+  }
+ ],
+ "mappings": []
+}

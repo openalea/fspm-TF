@@ -1,0 +1,19 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/openalea/fspm-TF/schema/0.1/index.schema.json",
+ "title": "fspm-TF sequence index",
+ "description": "scene.fspm.json: the frames of a sequence, one GLB file each, in time order (fspm-TF 0.1).",
+ "type": "object",
+ "required": ["fspmIndex", "timeUnit", "frames"],
+ "properties": {
+  "fspmIndex": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+  "timeUnit": {"type": "string", "minLength": 1},
+  "frames": {"type": "array", "items": {
+   "type": "object", "required": ["time", "step", "file"],
+   "properties": {"time": {"type": "number"}, "step": {"type": "integer", "minimum": 0},
+                  "file": {"type": "string", "pattern": "\\.glb$"}},
+   "additionalProperties": false}},
+  "extras": {}
+ },
+ "additionalProperties": false
+}

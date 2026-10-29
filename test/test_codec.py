@@ -1,0 +1,114 @@
+"""Writing then reading a frame gives it back: every column bit for bit, declarations, grids, mappings, meshes."""
+import json
+import struct
+
+import numpy as np
+import pytest
+
+import generate
+from fspm_tf import (DataStructure, EntitySet, Frame, Mesh, Table, Variable, from_bytes, read_index, read_sequence,
+                     to_bytes, write_sequence)
+from fspm_tf.dump import frame_to_dict
+from fspm_tf.glb import unpack
+
+
+def same_columns(a, b):
+    assert list(a.columns) == list(b.columns)
+    for name in a.columns:
+        x, y = a.columns[name], b.columns[name]
+        assert x.dtype == y.dtype and x.shape == y.shape, name
+        if x.dtype.kind == "f":
+            assert np.ascontiguousarray(x).tobytes() == np.ascontiguousarray(y).tobytes(), name      # bit for bit
+        else:
+            assert np.array_equal(x, y), name
+    assert a.variables == b.variables
+
+
+@pytest.mark.parametrize("name", sorted(generate.SCENES))
+def test_round_trip(name):
+    frame = generate.SCENES[name]()
+    again = from_bytes(to_bytes(frame))
+    assert (again.time, again.time_unit, again.step) == (frame.time, frame.time_unit, frame.step)
+    for written, read in zip(frame.data_structures, again.data_structures):
+        assert (written.id, written.kind, written.platform, written.model) == (read.id, read.kind, read.platform,
+                                                                               read.model)
+        assert np.array_equal(written.origin, read.origin)
+        for a, b in zip(written.entity_sets + written.relations, read.entity_sets + read.relations):
+            same_columns(a, b)
+        assert [entity_set.rank for entity_set in written.entity_sets] == [s.rank for s in read.entity_sets]
+        if written.scalars is not None:
+            same_columns(written.scalars, read.scalars)
+        assert written.grid == read.grid
+        for a, b in zip(written.meshes, read.meshes):
+            assert np.array_equal(a.positions.astype(np.float32), b.positions)
+            assert {k: v.tolist() for k, v in a.feature_rows.items()} == {k: v.tolist() for k, v in b.feature_rows.items()}
+    for a, b in zip(frame.mappings, again.mappings):
+        same_columns(a, b)
+        assert (a.source, a.target, a.method) == (b.source, b.target, b.method)
+    assert to_bytes(again) == to_bytes(frame)               # and writing what was read gives the same file
+
+
+def test_glb_layout():
+    data = to_bytes(generate.root_system())
+    magic, version, length = struct.unpack_from("<III", data)
+    assert (magic, version, length) == (0x46546C67, 2, len(data))
+    json_length = struct.unpack_from("<I", data, 12)[0]
+    assert json_length % 8 == 0 and (len(data) - 12 - 8 - json_length - 8) % 8 == 0
+    document, _ = unpack(data)
+    assert all(view["byteOffset"] % 8 == 0 for view in document["bufferViews"])
+    assert "FSPM_scene" not in document.get("extensionsRequired", [])
+
+
+def test_column_types():
+    columns = dict(id=np.arange(3, dtype=np.int64), f64=np.array([0.1, np.nan, -2.5e-300]),
+                   f32=np.array([1.5, np.nan, 3.], dtype=np.float32), i32=np.array([-1, 0, 7], dtype=np.int32),
+                   u8=np.array([0, 255, 3], dtype=np.uint8), flag=np.array([True, False, True]),
+                   text=np.array(["", "é", "racine latérale"], dtype=object), vector=np.arange(6.).reshape(3, 2))
+    frame = Frame([DataStructure("d", kind="table", entity_sets=[EntitySet("E", columns=columns)])])
+    same_columns(frame.data_structures[0].entity_sets[0], from_bytes(to_bytes(frame)).data_structures[0].entity_sets[0])
+
+
+def test_many_labels_and_empty_tables():
+    labels = np.array([f"L{i}" for i in range(300)], dtype=object)
+    full = EntitySet("Big", columns=dict(id=np.arange(300, dtype=np.int64), label=labels))
+    empty = EntitySet("Empty", columns=dict(id=np.zeros(0, dtype=np.int64), value=np.zeros(0)))
+    frame = Frame([DataStructure("d", kind="table", entity_sets=[full, empty])])
+    again = from_bytes(to_bytes(frame)).data_structures[0]
+    same_columns(full, again.entity_sets[0])
+    same_columns(empty, again.entity_sets[1])
+
+
+def test_values_that_cannot_be_written():
+    def frame_with(**columns):
+        return Frame([DataStructure("d", kind="table", entity_sets=[EntitySet("E", columns=columns)])])
+    with pytest.raises(ValueError, match="infinite"):
+        to_bytes(frame_with(x=[1., np.inf]))
+    with pytest.raises(ValueError, match="standing for NaN"):
+        to_bytes(frame_with(x=[np.nan, np.finfo(np.float64).min]))
+    with pytest.raises(ValueError, match="identifier"):
+        to_bytes(frame_with(**{"bad name": [1.]}))
+    with pytest.raises(ValueError, match="edge_type"):
+        to_bytes(frame_with(id=np.arange(2), edge_type=["none", "lateral"]))
+    entity_set = EntitySet("E", columns=dict(id=np.arange(2)))
+    mesh = Mesh("m", positions=np.zeros((3, 3)), feature_rows={"E": [0, 1, 2]})
+    with pytest.raises(ValueError, match="outside"):
+        to_bytes(Frame([DataStructure("d", entity_sets=[entity_set], meshes=[mesh])]))
+
+
+def test_unknown_content_is_kept():
+    frame = generate.parameter_set()
+    frame.unknown = {"extensions": {"VENDOR_thing": {"a": [1, 2]}}, "extras": {"note": "kept"}}
+    data = to_bytes(frame)
+    again = from_bytes(data)
+    assert again.unknown == frame.unknown
+    document, _ = unpack(data)
+    assert "VENDOR_thing" in document["extensionsUsed"]
+
+
+def test_sequence(tmp_path):
+    frames = generate.growing_sequence()
+    index = write_sequence(str(tmp_path), frames)
+    entries = read_index(index)["frames"]
+    assert [entry["time"] for entry in entries] == [0., 1., 2.]
+    for written, read in zip(frames, read_sequence(index)):
+        assert frame_to_dict(written) == json.loads(json.dumps(frame_to_dict(read)))
