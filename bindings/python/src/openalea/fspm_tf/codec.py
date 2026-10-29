@@ -30,6 +30,9 @@ IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 ARRAY_BUFFER, ELEMENT_ARRAY_BUFFER = 34962, 34963
 FLOAT, UNSIGNED_INT = 5126, 5125
 MAX_FLOAT_FEATURE = 2 ** 24                     # feature rows are stored as float32 vertex attributes
+# The scene's frame is z up (metres); glTF viewers expect y up: the root node turns the scene for them (-90° about x,
+# column-major). Readers of the tables use the scene's frame, not this node.
+Z_UP_TO_Y_UP = [1., 0., 0., 0., 0., 0., -1., 0., 0., 1., 0., 0., 0., 0., 0., 1.]
 
 COMPONENT_TYPES = {np.dtype(name): name.upper() for name in (
     "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float32", "float64")}
@@ -54,7 +57,8 @@ def to_bytes(frame: Frame) -> bytes:
                                                          for value, name in enumerate(EDGE_TYPES)]}}}
     tables, variables = [], {}
     document = {"asset": {"version": "2.0", "generator": f"fspm-tf {SPECIFICATION_VERSION}"},
-                "scene": 0, "scenes": [{"nodes": []}], "nodes": []}
+                "scene": 0, "scenes": [{"nodes": [0]}],
+                "nodes": [{"name": "fspm_scene", "matrix": Z_UP_TO_Y_UP, "children": []}]}
     accessors, meshes = [], []
 
     def add_table(table: Table, class_id: str) -> int:
@@ -95,7 +99,7 @@ def to_bytes(frame: Frame) -> bytes:
         if not np.array_equal(data_structure.origin, np.eye(4)):
             node["matrix"] = entry["origin"]
         document["nodes"].append(node)
-        document["scenes"][0]["nodes"].append(len(document["nodes"]) - 1)
+        document["nodes"][0]["children"].append(len(document["nodes"]) - 1)
         entry["node"] = len(document["nodes"]) - 1
         if data_structure.meshes:
             node["children"], entry["meshes"] = [], []
