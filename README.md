@@ -13,19 +13,25 @@ interface for coupling components across platforms.
 
 Status: specification 0.1, draft.
 
-- [The specification](spec/fspm_tf_0.1.md)
+- [The specification](spec/specification.md)
 - [The design note](docs/design_note.md): the review of existing formats and the decisions taken
 - [Implementations](implementations.md)
 
 ## The repository
 
-| Folder | Content |
-|---|---|
-| `spec/` | the specification |
-| `src/openalea/fspm_tf/schema/`, `src/openalea/fspm_tf/vocabulary/` | the language-neutral files of the specification: JSON Schemas, standard names, labels, enums |
-| `conformance/` | reference files, each a GLB with its expected values as JSON, and `generate.py`, which writes them |
-| `src/openalea/fspm_tf/` | `openalea.fspm_tf`, the Python reference implementation: codec, validator, display copies, command line |
-| `paraview/` | the ParaView reader plugin, and the script checking it in a `pvpython` |
+**`spec/` is the agreement between the platforms.** It's the only folder discussed with them; a change to the format is a
+change there, released as a new version. Everything else implements, checks or displays what it says.
+
+| Folder | Content | Discussed with the platforms |
+|---|---|---|
+| `spec/specification.md` | the specification: data model, glTF layout, sequences, conformance | **yes** |
+| `spec/schema/` | the JSON Schemas of the `FSPM_scene` extension and of a sequence's index | **yes** |
+| `spec/vocabulary/` | the standard names (units, kinds, definitions, and each platform's names for them), the labels with their Plant Ontology terms, the enumerations | **yes** |
+| `conformance/` | reference files, each a GLB with its expected values as JSON, written by `generate.py`: the specification as test cases for every platform's code | follows `spec/` |
+| `src/openalea/fspm_tf/` | `openalea.fspm_tf`, the Python reference implementation: codec, validator, display copies, command line; it reads `spec/` (and ships it) | no |
+| `paraview/` | the ParaView reader plugin, and the script checking it in a `pvpython` | no |
+| `docs/design_note.md` | how the decisions were reached | no |
+| `test/` | the tests of the Python package, the reader and the conformance files | no |
 
 ## The Python package
 
@@ -75,4 +81,8 @@ ParaView 6.0.1: `pvpython paraview/check_in_paraview.py conformance` (also run b
 
 A platform implements fspm-TF in its own language and repository. It reads the conformance GLBs and compares what it
 reads with their `*.expected.json`. It runs `fspm-tf validate` on what it writes, in its own CI. The steps are in the
-[specification, §9](spec/fspm_tf_0.1.md#9-conformance).
+[specification, §9](spec/specification.md#9-conformance).
+
+Each platform has a column of `spec/vocabulary/standard_names.csv`, listing its own names for each standard name
+(`;`-separated). The writers read their mapping from it (`openalea.fspm_tf.vocabulary.platform_names("metafspm")`), so
+the vocabulary changes without changing the platforms' code.

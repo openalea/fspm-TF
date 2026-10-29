@@ -1,0 +1,42 @@
+standard_name,canonical_unit,kind,property,object_of_interest,matrix,context,typical_scales,definition,metafspm,cplantbox,groimp,virtualplantlab,notes
+proximal_end_x,m,descriptor,position x,entity proximal end,,scene frame,SubOrgan,"x coordinate of the end of the entity closest to the plant base, in the data structure's frame",x1,,,,metafspm/ArchiSimple/Adel: x1
+proximal_end_y,m,descriptor,position y,entity proximal end,,scene frame,SubOrgan,"y coordinate of the end of the entity closest to the plant base, in the data structure's frame",y1,,,,metafspm/ArchiSimple/Adel: y1
+proximal_end_z,m,descriptor,position z,entity proximal end,,scene frame,SubOrgan,"z coordinate (up) of the end of the entity closest to the plant base, in the data structure's frame",z1,,,,metafspm/ArchiSimple/Adel: z1
+distal_end_x,m,descriptor,position x,entity distal end,,scene frame,SubOrgan,"x coordinate of the end of the entity farthest from the plant base, in the data structure's frame",x2,,,,metafspm/ArchiSimple/Adel: x2
+distal_end_y,m,descriptor,position y,entity distal end,,scene frame,SubOrgan,"y coordinate of the end of the entity farthest from the plant base, in the data structure's frame",y2,,,,metafspm/ArchiSimple/Adel: y2
+distal_end_z,m,descriptor,position z,entity distal end,,scene frame,SubOrgan,"z coordinate (up) of the end of the entity farthest from the plant base, in the data structure's frame",z2,,,,metafspm/ArchiSimple/Adel: z2
+length,m,extensive,length,entity,,,SubOrgan Organ,length of the entity along its axis,length,,,,metafspm/ArchiSimple/Adel/GRANAP/MECHA: length; Caribu: element_length; CPlantBox: segment length
+radius,m,intensive,radius,entity,,,SubOrgan,"radius of the entity's cross section (a root segment's, a stem's)",radius,,,,ArchiSimple/GRANAP: radius; CPlantBox: radius
+surface_area,m2,extensive,area,entity,,one side,SubOrgan Organ,"area of the entity's surface (one side of a leaf, the lateral surface of a cylinder)",area,,,,Adel: area; Caribu: element area
+green_area,m2,extensive,area,entity green part,,one side,SubOrgan Organ,area of the photosynthetically active (non-senescent) part of the entity,green_area,,,,Adel: green_area
+volume,m3,extensive,volume,entity,,,SubOrgan Cell,volume of the entity,volume,,,,ArchiSimple: volume; GRANAP: cell_volume; MECHA: node_volume
+distance_from_tip,m,intensive,distance,entity,,along its axis,SubOrgan,distance along the axis from the entity to the apex of its axis,distance_from_tip,,,,ArchiSimple/GRANAP: distance_from_tip
+azimuth,deg,descriptor,angle,entity axis,,from x towards y,SubOrgan Organ,azimuth of the entity's axis,azimuth,,,,ArchiSimple/Caribu: azimuth; Adel: organ_azimuth
+inclination,deg,descriptor,angle,entity axis,,from the vertical,SubOrgan Organ,inclination of the entity's axis from the vertical,inclination,,,,Adel/Caribu: inclination
+structural_mass,g,extensive,mass,structural dry matter,entity,,SubOrgan Plant,dry mass of the entity's structural matter,struct_mass,,,,ArchiSimple: struct_mass; metafspm example: struct_mass
+age,s,intensive,duration,entity,,since its emergence,SubOrgan Organ,time since the entity emerged,age,,,,ArchiSimple: age; CPlantBox: age
+thermal_time,K.d,intensive,thermal time,entity,,since its emergence,SubOrgan Organ Plant,"temperature-weighted time since the entity emerged, above the model's base temperature",thermal_time,,,,Adel: thermal_time (°Cd); ArchiSimple: thermal_time_since_emergence (s at a reference temperature)
+branching_order,1,descriptor,order,entity's axis,,,Axis SubOrgan,"branching order of the entity's axis (1: an axis from the seed or the plant base, 2: its laterals, ...)",root_order,,,,ArchiSimple: root_order; CPlantBox: order
+water_potential,Pa,intensive,water potential,water,entity,,SubOrgan Cell Compartment,total water potential in the entity,water_potential,,,,metafspm: water_potential (MPa); MECHA: psi (hPa); CPlantBox: psi_x (cm)
+osmotic_potential,Pa,intensive,osmotic potential,water,entity,,SubOrgan Cell Compartment,osmotic component of the water potential in the entity,osmotic_potential,,,,MECHA: osmotic_potential (hPa)
+soil_water_potential,Pa,intensive,water potential,water,soil,,Voxel,total water potential of the soil water,soil_water_potential,,,,metafspm: soil_water_potential (MPa); MECHA: soil_psi (hPa)
+soil_volumetric_water_content,m3/m3,intensive,volume fraction,water,soil,,Voxel,volume of water per volume of soil,,,,,DuMux/CPlantBox: water content
+axial_water_flow,m3/s,extensive,volume flow rate,water,entity xylem,towards the distal end,SubOrgan,"axial flow of water through the entity, positive towards its distal end",,,,,metafspm: water_flux (mm3 s-1); MECHA: flow (cm3 d-1)
+root_water_uptake,m3/s,extensive,volume flow rate,water,soil to root,,SubOrgan Plant,"flow of water from the soil into the entity, positive into the root",,,,,metafspm/MECHA: root_uptake
+transpiration_flow,m3/s,extensive,volume flow rate,water,entity to air,,SubOrgan Plant,flow of water lost by the entity to the air,,,,,metafspm/MECHA: evaporation
+hydraulic_conductance,m3/(s.Pa),intensive,hydraulic conductance,water,entity,,Connection SubOrgan,water flow per water potential difference across the entity or the connection,,,,,metafspm: conductance (mm3 s-1 MPa-1); MECHA: conductance (cm3 hPa-1 d-1)
+radial_hydraulic_conductivity,m/(s.Pa),intensive,hydraulic conductivity,water,root radial path,per unit of surface,SubOrgan,radial water flow per unit of root surface and water potential difference,,,,,MECHA: kr (cm hPa-1 d-1); metafspm: root_radial_k; CPlantBox: kr
+axial_hydraulic_conductance_per_length,m4/(s.Pa),intensive,hydraulic conductivity,water,entity xylem,per unit of length,SubOrgan,axial water flow times length per water potential difference,,,,,MECHA: Kx (cm4 hPa-1 d-1); metafspm: axial_k; CPlantBox: kx
+stomatal_conductance,mol/(m2.s),intensive,conductance,water vapour,stomata,per unit of leaf area,SubOrgan Organ,stomatal conductance to water vapour,stomatal_conductance,,,,metafspm: stomatal_conductance
+sucrose_concentration,mol/m3,volumic_concentration,amount concentration,sucrose,entity,,SubOrgan Cell Compartment,amount of sucrose per volume,sucrose,,,,MECHA: sucrose (mol cm-3)
+starch_concentration,mol/m3,volumic_concentration,amount concentration,starch (glucose equivalents),entity,,SubOrgan Cell Compartment,amount of starch per volume,starch,,,,MECHA: starch (mol cm-3)
+hexose_concentration,mol/g,massic_concentration,amount content,hexose,entity structural mass,,SubOrgan,amount of hexose per structural mass,,,,,metafspm README example: hexose; rhizodep: hexose
+soil_temperature,K,intensive,temperature,soil,,,Voxel SubOrgan,temperature of the soil around or in the entity,soil_temperature,,,,ArchiSimple: soil_temperature (Cel)
+leaf_temperature,K,intensive,temperature,leaf,,,SubOrgan Organ,temperature of the leaf tissue,leaf_temperature,,,,MECHA: leaf_temperature (Cel)
+air_temperature,K,intensive,temperature,air,,,Plant scene,temperature of the air,,,,,
+incident_par_photon_flux_density,mol/(m2.s),intensive,photon flux density,photosynthetically active radiation,entity surface,incident,SubOrgan Organ,photosynthetically active photons reaching the entity's surface per unit of area,PARi,,,,Caribu: PARi (umol m-2 s-1)
+absorbed_par_photon_flux_density,mol/(m2.s),intensive,photon flux density,photosynthetically active radiation,entity surface,absorbed,SubOrgan Organ,photosynthetically active photons absorbed by the entity per unit of area,PARa,,,,Caribu: PARa (umol m-2 s-1)
+cell_area,m2,extensive,area,cell,cross section,,Cell,area of the cell in the cross section,cell_area,,,,GRANAP/MECHA: cell_area (mm2)
+wall_thickness,m,intensive,thickness,cell wall,,,Connection Cell,thickness of the cell wall,wall_thickness,,,,GRANAP/MECHA: wall_thickness (um)
+net_co2_assimilation_rate,mol/(m2.s),intensive,assimilation rate,carbon dioxide,leaf,net,SubOrgan Organ,net CO2 assimilated per unit of leaf area (photosynthesis minus respiration),,,,,"not in metafspm yet (VPL's Ecophys.jl, GroIMP's photosynthesis models)"
+nitrate_concentration,mol/m3,volumic_concentration,amount concentration,nitrate,entity or soil,,SubOrgan Voxel,amount of nitrate per volume,,,,,not in metafspm yet (CPlantBox/DuMux solute transport)

@@ -421,10 +421,13 @@ This repository is platform-neutral, separate from metafspm, like RSML.
 fspm-TF/
   README.md
   docs/design_note.md         this note
-  spec/                       the specification, versioned (fspm_tf_0.1.md)
-  src/openalea/fspm_tf/                the Python reference package (§5.1): codec, validator, display tool, command line
-    schema/                   JSON Schema of FSPM_scene and of the index file (language-neutral files, shipped
-    vocabulary/               standard_names.csv, labels.csv, enums.json      with the package and the releases)
+  spec/                       the agreement, the only folder discussed with the platforms:
+    specification.md          the specification
+    schema/                   JSON Schema of FSPM_scene and of the index file
+    vocabulary/               standard_names.csv (with one column of names per platform), labels.csv, enums.json
+  src/openalea/fspm_tf/       the Python reference package (§5.1): codec, validator, display tool, command line; it
+                              reads spec/ and ships it (openalea.fspm_tf.spec)
+  paraview/                   the ParaView reader plugin
   conformance/                the reference files: a root system, a wheat shoot, a cell network, a soil grid with
                               its mapping, an adaptive grid, a parameter set, a 3-frame growing sequence; each GLB
                               with its expected values as JSON; generate.py writes them

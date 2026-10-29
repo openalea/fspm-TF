@@ -5,15 +5,14 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [tool.setuptools]
 include-package-data = false # force explicit declaration of data (disable automatic inclusion)
+# the code in src/; the specification (spec/: its text, schemas and vocabulary) shipped as openalea.fspm_tf.spec
+packages = ["openalea.fspm_tf", "openalea.fspm_tf.spec"]
+package-dir = {"" = "src", "openalea.fspm_tf.spec" = "spec"}
 
-# the language-neutral files of the specification, shipped with the package
 [tool.setuptools.package-data]
-"openalea.fspm_tf" = ["schema/*.json", "vocabulary/*.csv", "vocabulary/*.json"]
+"openalea.fspm_tf.spec" = ["*.md", "schema/*.json", "vocabulary/*.csv", "vocabulary/*.json"]
 
 # enable dynamic version based on git tags
 [tool.setuptools_scm]

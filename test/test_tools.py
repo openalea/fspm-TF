@@ -31,6 +31,16 @@ def test_vocabulary():
                for row in vocabulary.labels().values())
 
 
+def test_each_platform_name_maps_to_one_standard_name():
+    for platform in vocabulary.PLATFORMS:
+        listed = [name.strip() for row in vocabulary.standard_names().values()
+                  for name in (row[platform] or "").split(";") if name.strip()]
+        assert len(listed) == len(set(listed)), platform
+    assert vocabulary.platform_names("metafspm")["x1"] == "proximal_end_x"
+    with pytest.raises(ValueError):
+        vocabulary.platform_names("unknown")
+
+
 def test_display_copies():
     frame = add_display(generate.root_system(), ["water_potential", "branching_order"])
     mesh = frame.data_structures[0].meshes[0]

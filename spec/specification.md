@@ -10,11 +10,11 @@ The language-neutral files of this version are part of the specification:
 
 | File | Content |
 |---|---|
-| `src/openalea/fspm_tf/schema/fspm_scene.schema.json` | JSON Schema of the `FSPM_scene` extension (§3) |
-| `src/openalea/fspm_tf/schema/index.schema.json` | JSON Schema of a sequence's index (§8) |
-| `src/openalea/fspm_tf/vocabulary/standard_names.csv` | the standard names, their canonical units and kinds (§6) |
-| `src/openalea/fspm_tf/vocabulary/labels.csv` | entity labels, their scales and Plant Ontology terms (§6) |
-| `src/openalea/fspm_tf/vocabulary/enums.json` | the values of `edge_type`, `kind`, `role`, data structure and grid kinds; the base scales |
+| `spec/schema/fspm_scene.schema.json` | JSON Schema of the `FSPM_scene` extension (§3) |
+| `spec/schema/index.schema.json` | JSON Schema of a sequence's index (§8) |
+| `spec/vocabulary/standard_names.csv` | the standard names, their canonical units and kinds, and each platform's names for them (§6) |
+| `spec/vocabulary/labels.csv` | entity labels, their scales and Plant Ontology terms (§6) |
+| `spec/vocabulary/enums.json` | the values of `edge_type`, `kind`, `role`, data structure and grid kinds; the base scales |
 | `conformance/` | reference files and their expected values (§9) |
 
 ## 1. The data model
@@ -204,7 +204,9 @@ The vocabulary (version `0.1`) lists standard names. For each, it gives:
 - an I-ADOPT-like decomposition: property, object of interest, matrix, context;
 - typical scales;
 - a definition;
-- the names the platforms use for the same quantity.
+- for each platform (columns `metafspm`, `cplantbox`, `groimp`, `virtualplantlab`), its names for the quantity,
+  separated by `;`. A platform's writer reads its mapping from its column, and a name appears in one row of its
+  platform's column at most.
 
 Labels are listed with their scale and Plant Ontology term. A frame declares the vocabulary version it uses
 (`vocabulary`). Writers SHOULD use the vocabulary's labels for entities that have one.
