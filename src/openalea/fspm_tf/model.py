@@ -23,7 +23,7 @@ NO_ID = -1                                      # complex / parent / feature row
 # Columns whose meaning the specification fixes, per kind of table
 RESERVED = {
     "entity_set": ("id", "label", "complex", "parent", "edge_type", "level", "index"),
-    "relation": ("source", "target", "relation"),
+    "relation": ("id", "source", "target", "relation"),
     "mapping": ("source", "target", "weight"),
     "scalars": (),
 }
@@ -98,7 +98,7 @@ class EntitySet(Table):
 @dataclass
 class Relation(Table):
     """An edge table: source and target entity ids (in the entity sets *source_set* and *target_set*), an optional
-    relation label per edge, and edge variables."""
+    id per edge (int64, unique in the data structure), an optional relation label per edge, and edge variables."""
     source_set: str = ""
     target_set: str = ""
 
@@ -148,7 +148,9 @@ class Mesh:
 
 @dataclass
 class DataStructure:
-    """One plant population's graph, or one environment model's grid. *origin*: its frame in the scene (4×4)."""
+    """One plant population's graph, or one environment model's grid. *origin*: its frame in the scene (4×4).
+    *extras*: JSON values for the writing platform (e.g. what it needs to rebuild its own data structure); other
+    readers keep them without interpreting them."""
     id: str
     kind: str = "graph"
     entity_sets: list = field(default_factory=list)
@@ -159,6 +161,7 @@ class DataStructure:
     origin: np.ndarray = field(default_factory=lambda: np.eye(4))
     platform: Optional[str] = None
     model: Optional[str] = None
+    extras: dict = field(default_factory=dict)
 
     def __post_init__(self):
         self.origin = np.asarray(self.origin, dtype=np.float64).reshape(4, 4)

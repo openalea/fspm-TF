@@ -32,7 +32,7 @@ def test_round_trip(name):
     for written, read in zip(frame.data_structures, again.data_structures):
         assert (written.id, written.kind, written.platform, written.model) == (read.id, read.kind, read.platform,
                                                                                read.model)
-        assert np.array_equal(written.origin, read.origin)
+        assert np.array_equal(written.origin, read.origin) and written.extras == read.extras
         for a, b in zip(written.entity_sets + written.relations, read.entity_sets + read.relations):
             same_columns(a, b)
         assert [entity_set.rank for entity_set in written.entity_sets] == [s.rank for s in read.entity_sets]

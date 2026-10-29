@@ -160,7 +160,7 @@ def wheat_shoot() -> Frame:
 
 def section_cells() -> Frame:
     """A root cross section as a cell network (MECHA-like): 4 cells (Compartment scale) and 5 connections (an edge
-    table with a relation label and a conductance), the cells drawn as squares."""
+    table with ids, a relation label and a conductance), the cells drawn as squares; extras for the writer."""
     cells = EntitySet("Compartment", rank=9, columns=dict(
         id=np.arange(4, dtype=np.int64),
         label=np.array(["SymplasticNode", "SymplasticNode", "SymplasticNode", "ApoplasticNode"], dtype=object),
@@ -173,7 +173,7 @@ def section_cells() -> Frame:
                            centre=dict(unit="m", kind="descriptor", description="the cell's centre (x, y)"),
                            layer=dict(unit="1", kind="descriptor", description="the cell's tissue")))
     connections = Relation("Connection", source_set="Compartment", target_set="Compartment", columns=dict(
-        source=np.array([0, 1, 0, 1, 2], dtype=np.int64), target=np.array([1, 2, 2, 3, 3], dtype=np.int64),
+        id=np.arange(10, 15, dtype=np.int64), source=np.array([0, 1, 0, 1, 2], dtype=np.int64), target=np.array([1, 2, 2, 3, 3], dtype=np.int64),
         relation=np.array(["SymplasticEdge", "SymplasticEdge", "SymplasticEdge", "ApoplasticEdge",
                            "ApoplasticEdge"], dtype=object),
         conductance=np.array([1e-18, 2e-18, 1.5e-18, 4e-17, 3e-17])),
@@ -187,7 +187,8 @@ def section_cells() -> Frame:
         rows += [row] * 6
     mesh = Mesh("cells", positions=squares, feature_rows={"Compartment": rows})
     data_structure = DataStructure("section", entity_sets=[cells], relations=[connections], meshes=[mesh],
-                                   platform="fspm-tf", model="toy cell network")
+                                   platform="fspm-tf", model="toy cell network",
+                                   extras={"fspm-tf": {"note": "extras are the writer's, kept by readers"}})
     return Frame([data_structure], time=0., step=0, writer=WRITER, vocabulary_version="0.1")
 
 

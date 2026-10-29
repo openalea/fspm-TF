@@ -22,6 +22,9 @@ def test_ids():
     frame = generate.root_system()
     segments_of(frame).columns["id"][1] = segments_of(frame).columns["id"][0]
     assert "ids are not unique" in messages(frame)
+    frame = generate.root_system()
+    segments_of(frame).columns["id"][0] = 100                  # an Axis' id
+    assert "ids are unique across the data structure" in messages(frame)
 
 
 def test_mtg_relations():

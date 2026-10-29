@@ -193,6 +193,13 @@ def _check_frame(frame, document: dict, report: Report) -> None:
         ids = {}
         for entity_set in data_structure.entity_sets:
             ids[entity_set.name] = _check_entity_set(data_structure, entity_set, report)
+        for relation in data_structure.relations:
+            if "id" in relation.columns:
+                ids[f"relation {relation.name}"] = _check_entity_set(data_structure, relation, report)
+        explicit = [values for name, values in ids.items()          # a grid's cells may have implicit ids
+                    if not (data_structure.grid is not None and name == data_structure.grid.cells)]
+        if explicit and sum(len(values) for values in explicit) != len(set().union(*explicit)):
+            report.error(where, "ids are unique across the data structure's entity sets and relations")
         _check_mtg(data_structure, sets, ids, report)
         for relation in data_structure.relations:
             for end, set_name in (("source", relation.source_set), ("target", relation.target_set)):
@@ -268,7 +275,7 @@ def _check_references(where, values, ids: set, report, allow_none: bool = True) 
 
 
 def _check_mtg(data_structure, sets: dict, ids: dict, report) -> None:
-    """complex points to the nearest coarser entity set; parent and edge_type agree; parents form no cycle."""
+    """complex points to an entity of a coarser entity set; parent and edge_type agree; parents form no cycle."""
     ranked = sorted((entity_set for entity_set in data_structure.entity_sets if entity_set.rank is not None),
                     key=lambda entity_set: entity_set.rank)
     for position, entity_set in enumerate(ranked):
@@ -279,7 +286,9 @@ def _check_mtg(data_structure, sets: dict, ids: dict, report) -> None:
             if "complex" not in columns:
                 report.error(where, f"no 'complex' column (its entities belong to {coarser.name})")
             else:
-                _check_references(f"{where}/complex", columns["complex"], ids[coarser.name], report)
+                coarser_ids = set().union(*[ids[other.name] for other in ranked[:position]
+                                            if other.rank < entity_set.rank])
+                _check_references(f"{where}/complex", columns["complex"], coarser_ids, report)
                 if (columns["complex"] == NO_ID).any():
                     report.warning(f"{where}/complex", "entities without a complex at the coarser scale")
         elif "complex" in columns and (columns["complex"] != NO_ID).any():

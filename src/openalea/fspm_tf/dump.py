@@ -57,6 +57,8 @@ def frame_to_dict(frame: Frame) -> dict:
         for key in ("platform", "model"):
             if getattr(data_structure, key) is not None:
                 entry[key] = getattr(data_structure, key)
+        if data_structure.extras:
+            entry["extras"] = data_structure.extras
         if data_structure.relations:
             entry["relations"] = [dict(_table(relation), source_set=relation.source_set,
                                        target_set=relation.target_set) for relation in data_structure.relations]

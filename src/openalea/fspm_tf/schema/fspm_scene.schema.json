@@ -48,6 +48,7 @@
      "additionalProperties": false}},
     "scalars": {"$ref": "#/$defs/index"},
     "grid": {"$ref": "#/$defs/grid"},
+    "extras": {"type": "object"},
     "meshes": {"type": "array", "items": {
      "type": "object", "required": ["name", "mesh"],
      "properties": {"name": {"type": "string"}, "mesh": {"$ref": "#/$defs/index"},

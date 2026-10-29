@@ -84,6 +84,8 @@ def to_bytes(frame: Frame) -> bytes:
             entry["scalars"] = add_table(data_structure.scalars, f"{data_structure.id}__scalars")
         if data_structure.grid is not None:
             entry["grid"] = _grid_json(data_structure.grid)
+        if data_structure.extras:
+            entry["extras"] = data_structure.extras
         node = {"name": data_structure.id}
         if not np.array_equal(data_structure.origin, np.eye(4)):
             node["matrix"] = entry["origin"]
@@ -212,7 +214,7 @@ def _encode_table(table: Table, class_id: str, buffers: BufferBuilder, schema: d
             elif name in ("complex", "parent") and name in table.reserved:
                 prop["noData"] = NO_ID
             values[name] = {"values": buffers.add(data)}
-        if name == "id" and name in table.reserved:
+        if name == "id" and name in table.reserved and table.table_kind == "entity_set":
             prop["required"] = True
         properties[name] = prop
     return properties, values
@@ -315,7 +317,7 @@ def from_bytes(data: bytes) -> Frame:
     for entry in scene.get("dataStructures", []):
         data_structure = DataStructure(
             id=entry["id"], kind=entry.get("kind", "graph"), platform=entry.get("platform"),
-            model=entry.get("model"),
+            model=entry.get("model"), extras=entry.get("extras", {}),
             origin=np.asarray(entry.get("origin", np.eye(4).reshape(-1)), dtype=float).reshape(4, 4).T)
         data_structure.entity_sets = [table(item["propertyTable"], EntitySet, rank=item.get("rank"))
                                       for item in entry.get("entitySets", [])]

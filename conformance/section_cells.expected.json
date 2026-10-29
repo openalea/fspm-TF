@@ -135,11 +135,26 @@
    ],
    "platform": "fspm-tf",
    "model": "toy cell network",
+   "extras": {
+    "fspm-tf": {
+     "note": "extras are the writer's, kept by readers"
+    }
+   },
    "relations": [
     {
      "name": "Connection",
      "count": 5,
      "columns": {
+      "id": {
+       "dtype": "int64",
+       "values": [
+        10,
+        11,
+        12,
+        13,
+        14
+       ]
+      },
       "source": {
        "dtype": "int64",
        "values": [

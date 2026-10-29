@@ -88,6 +88,9 @@ The glTF root's `extensions.FSPM_scene` MUST follow `fspm_scene.schema.json`:
 - **Identifiers.** Data structure ids, entity set, relation and mapping names, and column names MUST be identifiers
   (`^[a-zA-Z_][a-zA-Z0-9_]*$`). Within a frame, data structure ids are unique, and so are the names of a data
   structure's entity sets.
+- **Extras.** A data structure MAY carry `extras`, a JSON object for the writing platform, e.g. what it needs to
+  rebuild its own data structure exactly. Its keys SHOULD be the platform's name. Other readers MUST NOT need it,
+  and SHOULD keep it.
 - **Property tables.** Every table of §1 is one `EXT_structural_metadata` property table of its own class, and no
   property table serves two tables. Writers SHOULD name the classes `<data structure>__<table>` (mappings:
   `mapping__<name>`). Readers MUST find tables through the `propertyTable` indices, not through class names.
@@ -122,9 +125,9 @@ These columns have fixed meanings, in the tables where they appear:
 
 | Column | Type | Meaning |
 |---|---|---|
-| `id` | INT64, required | the entity's id: non-negative, unique in its entity set (§7 for a sequence) |
+| `id` | INT64, required | the entity's id: non-negative, unique across the data structure's entity sets and relations (§8 for a sequence) |
 | `label` | ENUM | the entity's label (§6) |
-| `complex` | INT64, `noData` −1 | the id of the entity containing it, in the nearest coarser entity set of the graph (MTG decomposition `/`) |
+| `complex` | INT64, `noData` −1 | the id of the entity containing it, in a coarser entity set of the graph (MTG decomposition `/`); usually the nearest coarser one, but e.g. a cell wall may belong to its segment directly |
 | `parent` | INT64, `noData` −1 | the id of its predecessor in the same entity set |
 | `edge_type` | ENUM `FSPM_edge_type` | how it follows its parent: `none` (no parent), `successor` (MTG `<`), `branch` (MTG `+`) |
 | `level`, `index` | INT64; INT64 vector, one per dimension | an adaptive grid's leaf cell: its refinement level, and its integer index at that level |
@@ -133,6 +136,7 @@ These columns have fixed meanings, in the tables where they appear:
 
 | Column | Type | Meaning |
 |---|---|---|
+| `id` | INT64, optional | the edge's id, when edges are entities of the writer's model (e.g. metafspm's Connections): unique like entity ids |
 | `source`, `target` | INT64 | ids in the relation's `sourceSet` and `targetSet` |
 | `relation` | ENUM | an optional label per edge |
 
