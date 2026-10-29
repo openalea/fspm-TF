@@ -578,7 +578,7 @@ answer: I don't understand the question.
    The best-suited option is a **ParaView reader plugin written in Python**, shipped with `openalea.fspm_tf`:
    - ParaView loads Python readers (a `VTKPythonAlgorithmBase` with its decorators, since ParaView 5.6). It runs
      them in its own Python, which has numpy, so the pure-Python `openalea.fspm_tf` codec runs inside ParaView.
-     **[to verify: installing `openalea.fspm_tf` into ParaView's Python, per platform]**
+     (Checked with ParaView 6.0.1: nothing to install, the plugin finds `openalea.fspm_tf` in the clone's `src/`.)
    - The plugin reads the GLB (or the index file) and turns each triangle's entity value into float64 *cell data*
      (one value per triangle, from the feature IDs). Every variable, at every scale, becomes available for colouring,
      filters and plots. The index's frames become ParaView's time steps, with a growing topology.
