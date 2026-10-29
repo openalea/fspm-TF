@@ -141,10 +141,10 @@ This leads to the layered design below.
 
 ```
              data model  (§4.2: entities, scales, relations, variables, geometry links, frames)
-            /                 |                      \
-  glTF binding (§4.4)   Arrow binding (§4.6)   VTKHDF export (§4.7)
-  the exchange file     in-memory coupling     visualisation over time in ParaView
-            \                 |
+            /                         \
+  glTF binding (§4.4)           Arrow binding (§4.6)
+  the exchange file             in-memory coupling
+            \                         /
              vocabulary (§4.5: standard names, units, kinds, scales)
 ```
 
@@ -152,7 +152,6 @@ The **specification** is the data model plus the vocabulary. The bindings are ho
 
 - glTF is the normative file binding.
 - Arrow is the normative transport binding.
-- VTKHDF is an optional, lossy export for viewing.
 
 Each binding maps the same tables mechanically, so converting between them is a copy of columns.
 
@@ -241,10 +240,14 @@ plant.
 
 - Scales with no geometry have none. A scale with its own geometry (an organ's envelope, a voxel grid's cells) has
   its own mesh.
-- Segment models (roots) may use LINES with a `_RADIUS` attribute instead of triangles **[decision]**:
-  - lines are about 20× smaller and are what CPlantBox's vtp writes;
-  - triangles are what light models need.
+- Meshes are **triangles** (decided, §7.3), also for segment models such as roots: they are what light models
+  need, and what every viewer draws. A writer may keep the segments' exact ends and radii as float64 columns too.
 - Repeated shapes (leaves of a template, plants of a stand) may use instancing, as OPF and AMAP do.
+
+#### Parameter sets
+
+A frame may hold only data structures with their declared parameters (role `parameter`) and no entities: a
+**parameter set**, exchanged on its own (decided, §7.5).
 
 #### Frames
 
@@ -284,7 +287,7 @@ One glTF asset is **one frame**. The binding uses only:
 - `EXT_structural_metadata`, property tables only: no property textures and no property attributes, because these
   can't hold float64;
 - `EXT_mesh_features`, attribute feature IDs only;
-- one fspm-TF extension, provisionally `FSPM_scene` **[decision: name and prefix registration]**, holding what the
+- one fspm-TF extension, `FSPM_scene` (decided, §7.1), holding what the
   metadata extension cannot hold.
 
 #### Layout
@@ -326,18 +329,19 @@ meshes                             TRIANGLES or LINES, POSITION in float32 relat
 - **The extensions are declared in `extensionsUsed`, not in `extensionsRequired`,** so that any glTF viewer opens the
   file.
 
-#### Time sequences **[decision]**
+#### Time sequences (decided, §7.2)
 
-- **(a) One GLB per frame, plus an index** (`scene.fspm.json`: frames with t, step and file). This is the `.pvd`
-  pattern. It is simple, streamable and appendable. Unchanged buffers can be shared through external `.bin` files.
-- **(b) One GLB with every frame:** per-frame property tables and meshes, with `FSPM_scene.frames[]` pointing at
-  them. It is one file to share, but rewritten on every append, and capped at 4 GiB.
-- **Recommendation:** (a) as the normative layout, with (b) allowed as a packed form produced by a tool.
+**One GLB per frame, plus an index** (`scene.fspm.json`: frames with t, step and file). This is the `.pvd` pattern.
+It is simple, streamable and appendable. Unchanged buffers can be shared through external `.bin` files.
+
+A tool may later pack a sequence into one GLB: per-frame property tables and meshes, with `FSPM_scene.frames[]`
+pointing at them, capped at 4 GiB.
 
 #### Viewing
 
 - Any glTF viewer shows the geometry.
-- ParaView shows the display copies.
+- ParaView shows the display copies: float32 per-vertex copies of chosen variables. Files have none by default;
+  the writer's `display=` option or the `fspm-tf display` tool adds them (§7.4).
 - Cesium and 3DTilesRendererJS show every table.
 
 ### 4.5 The vocabulary
@@ -355,8 +359,10 @@ A versioned table in the repository, `vocabulary/standard_names.csv`, following 
 
 Labels map to Plant Ontology terms.
 
-- **Start small:** about 30 names that the four platforms already share: geometry, masses, ages, radii, lengths, water
-  potentials, concentrations of the main solutes, temperatures, absorbed radiation, soil water content.
+- **Start small:** about 30 names, drafted from the declarations of metafspm and its ported packages (ArchiSimple,
+  Adel, Caribu, GRANAP, MECHA), and completed from CPlantBox, GroIMP and VPL where metafspm lacks a domain (decided,
+  §7.7). They cover geometry, masses, ages, radii, lengths, water potentials, concentrations of the main solutes,
+  temperatures, absorbed radiation and soil water content.
 - **Grow it** through pull requests reviewed by the platforms.
 
 ### 4.6 Dynamic coupling (the Arrow binding)
@@ -379,16 +385,10 @@ A coupling **protocol** shaped like BMI:
 
 This is a later phase (§6). The data model is specified first, so that the coupling inherits it.
 
-### 4.7 The VTKHDF export (optional)
+### 4.7 VTKHDF (dropped)
 
-For long simulations viewed in ParaView, a converter writes VTKHDF:
-
-- a PartitionedDataSetCollection, one partition per data structure;
-- its Assembly as the scales;
-- temporal data with per-step offsets, so the topology can grow;
-- ImageData for grids.
-
-It is a viewing format: lossy for relations, outside the specification.
+A VTKHDF export was considered for viewing long simulations in ParaView. It is dropped, to keep fspm-TF free of an
+HDF5 dependency (§7.8). ParaView views the glTF files themselves, through display copies.
 
 ### 4.8 Read and write cost in metafspm, and the glTF-backed DataStructure question
 
@@ -404,7 +404,8 @@ A DataStructure *backed* by a glTF buffer would have to keep the JSON and the bu
 `set`, every growth and every `register`. That reimplements what the numpy store does, with no gain in exactness or
 speed. **Recommendation: no backing DataStructure.** Provide instead:
 
-- `export_frame(scene or data structures, path)` and `import_frame(path) -> data structures`;
+- `export_frame(scene or data structures, path)` and `import_frame(path) -> data structures`, in metafspm's `io`
+  module, on top of the `fspm-tf` codec (§5.1);
 - a `SceneRecorder` option writing frames every N steps;
 - the round-trip test as the contract: export → import gives the same ids, topology, values (bit for bit), metadata
   and mappings, for every DataStructure type and location;
@@ -421,45 +422,151 @@ fspm-TF/
   spec/                       the specification, versioned (v0.1 drafts, then releases)
   schema/                     JSON Schema of FSPM_scene and of the index file
   vocabulary/                 standard_names.csv, labels → Plant Ontology, units
-  examples/                   small reference files: a root system, a wheat shoot, a MECHA section with cells,
-                              a soil grid with its mapping, a 3-frame growing sequence
-  validator/                  the Khronos glTF validator plus fspm-TF checks (ids, references, units, kinds)
+  src/fspm_tf/                the Python reference package (§5.1): codec, validator, display tool, command line
+  conformance/                the reference files: a root system, a wheat shoot, a MECHA section with cells, a soil
+                              grid with its mapping, a parameter set, a 3-frame growing sequence; each GLB with its
+                              expected values as JSON
+  test/                       pytest: the codec, the validator, the conformance files
+  conda/, pyproject.toml      packaging, as metafspm's
   implementations.md          pointers to each platform's reader and writer, kept in the platforms' own repositories
 ```
 
-- **Readers and writers** live in each platform: metafspm's in metafspm, CPlantBox's in CPlantBox, and so on. The
-  repository keeps only the specification, the schema, the vocabulary, the examples and the validator.
-- **PlantConvert** (openalea-incubator) already converts MTG, OPF, glTF and VTK. It could become fspm-TF's converter
-  hub for formats without a native implementation (OPF, `.mtg`, RSML) **[decision: coordinate with its authors]**.
+- **The repository holds:** the specification, the schema, the vocabulary, the conformance files, and a small Python
+  package, which is generic and knows no platform.
+- **Each platform's own mapping lives in that platform:** metafspm's in metafspm, CPlantBox's in CPlantBox, and so on.
+- **fspm-TF is separate from RSML and PlantConvert** (decided, §7.6). Converters from OPF, `.mtg` or RSML can come
+  later, in PlantConvert.
 - **Rules:**
   - semantic versioning of the specification;
   - readers keep what they don't understand (RSML's rule);
-  - every change comes with an example file and a validator check;
+  - every change comes with a conformance file and a validator check;
   - the vocabulary grows by review from at least two platforms.
+
+### 5.1 Sources, tests, CI, and how metafspm uses the repository
+
+Everything maintained in this repository is Python. The other platforms take part through files and a command line,
+not code: no C++, Java or Julia has to be maintained here.
+
+**The Python package `fspm-tf`.** Its only dependencies are numpy and jsonschema; GLB is a 12-byte header plus a JSON
+chunk and a binary chunk, so no glTF library is needed. It contains:
+
+- `fspm_tf.codec`:
+  - `write(path, frame)` and `read(path) -> frame`, where a frame is plain Python: data structures, entity sets as
+    `{column: numpy array}`, variable declarations as dicts, meshes as arrays with feature IDs;
+  - `write_index` and `read_index` for sequences.
+- `fspm_tf.validate`: JSON Schema checks of `FSPM_scene` and the index; the checks the schema cannot express (ids
+  unique and never reused across frames, `complex` and `parent` pointing to existing entities, units parsable as UCUM,
+  kinds and standard names in the vocabulary, tables 8-byte aligned, display copies flagged).
+- `fspm_tf.display`: adds or removes display copies (§7.4).
+- `fspm_tf.vocabulary`: the vocabulary table, shipped as package data.
+- A command line: `fspm-tf validate file.glb`, `fspm-tf display file.glb name ...`, `fspm-tf info file.glb`.
+
+**Tests and CI**, the same way as metafspm:
+
+- pytest in `test/`;
+- GitHub Actions with openalea's build-publish-anaconda action, publishing a noarch conda package to `openalea3` (and
+  PyPI) on each release tag.
+- The CI also runs Khronos' glTF-Validator (a standalone binary) on every conformance file, so the files stay valid
+  glTF for every viewer.
+- The conformance files are generated by a script in the repository, from hand-written frames, and committed. A test
+  checks that the script still produces them byte for byte.
+
+**How another platform tests its implementation**, in its own CI:
+
+- **Writing:** it writes the conformance scenes with its own code and runs `fspm-tf validate` (conda or pip, or
+  a container).
+- **Reading:** it reads the conformance GLBs with its own code and compares the values with the expected JSON.
+
+The platform needs nothing else from Python, and its CI shows whether it follows the specification version it
+claims.
+
+**How metafspm uses it:**
+
+- `openalea.metafspm.io.fspm_tf`, a new module, maps metafspm's DataStructures, mappings and declarations to
+  `fspm_tf` frames and back (§4.3), and calls the codec. It is the only metafspm code concerned.
+- metafspm's environment and recipe add `fspm-tf`, pinned to the specification version it implements
+  (`fspm-tf >=0.1,<0.2`).
+- During development it is installed with `pip install -e ../fspm-TF`, as metafspm itself is in the ported packages.
+- metafspm's tests use the round trip (§4.8), `fspm_tf.validate` on what it writes, and the conformance files on
+  what it reads.
+- A new release of the specification is a new `fspm-tf` version. metafspm moves to it with a pin change, and its
+  tests tell what has to follow.
 
 ## 6. Plan
 
 | Phase | Content | Done when |
 |---|---|---|
 | P0 | This note, discussed with the partner platforms | the [decision] points settled |
-| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; hand-made example files | the validator accepts the examples |
+| P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `fspm-tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files |
 | P2 | metafspm reference implementation: `export_frame` and `import_frame` for MPG, Array and AdaptiveGrid DataStructures, mappings and triangles | round-trip tests bit-exact on the ported models' scenes (ArchiSimple, Adel, Caribu, GRANAP and MECHA, soil) |
-| P3 | Viewer checks: ParaView (display copies), three.js/3DTilesRenderer, Blender; VTKHDF export | the example files viewed with their variables |
+| P3 | Viewer checks: ParaView (display copies, the `fspm-tf display` tool), three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
 | P4 | A second platform: CPlantBox through its Python layer (the easiest), or VPL through PlantGeom.jl | a file written by one platform and read by the other, with the same values |
 | P5 | Arrow binding and coupling protocol; a two-platform coupled run | one component in metafspm and one in another platform exchanging tables at each step |
 
 ## 7. Open decisions
 
 1. The extension's name and prefix: `FSPM_scene` (unregistered vendor prefix) vs a registered prefix.
+answer: FSPM_scene
+   → **Decided:** `FSPM_scene`.
 2. Time layout: one GLB per frame plus an index (recommended) vs one packed GLB.
+answer: yes to Recommendation
+   → **Decided:** one GLB per frame plus the index `scene.fspm.json` (§4.4). A tool may pack them later.
 3. Root geometry: LINES with radius vs triangles vs both.
+answer: triangles
+   → **Decided:** triangles only (§4.2).
 4. Display copies: which variables, chosen by the writer or by a rule.
+answer: I don't understand the question.
+   → **Explanation.** The state variables are stored once per entity, in float64 property tables (§4.4). Viewers that
+   don't read the metadata extension, ParaView among them, cannot use those tables to colour the geometry. They can
+   only colour by a *vertex attribute*: a float32 value repeated on every vertex of every triangle (an attribute
+   named `_WATER_POTENTIAL`, say). To see a root system coloured by its water potential in ParaView, the file must
+   therefore hold a second, float32, per-vertex copy of that variable: a "display copy".
+   - These copies cost space. A segment drawn as a cylinder has about 16 vertices, so a copy takes 16 × 4 = 64 bytes
+     per entity, against 8 bytes for the float64 value in the table.
+   - Copying every variable would make the file about 8 times larger.
+   - The question is which variables get a copy.
+
+   **Proposal:**
+   - Files hold no display copies by default: they are exact and lean.
+   - The writer takes an option `display=[names]` to add some.
+   - The repository's tool also adds them to an existing file afterwards (`fspm-tf display file.glb
+     water_potential`), computed from the tables. A file can then be prepared for ParaView at any time, and no
+     platform has to implement this.
+   - Display copies are flagged as such, and readers ignore them as state.
+
+   **[decision: confirm]**
 5. Whether data-structure-level parameters are exchanged (parameter tables) or only states and inputs.
+answer: also parameters, that would enable also to exchange them between platforms.
+   → **Decided:** parameters are exchanged.
+   - A parameter is a declared variable with role `parameter`, so it carries a unit, a standard name and references.
+   - It is stored at the location it applies to:
+     - a scene-wide value, in the data structure's one-row table;
+     - one value per plant (metafspm's planting scenarios), as a Plant-scale column;
+     - one value per entity type, as a column of that scale.
+   - A file holding only parameters, with no entities, is valid: a **parameter set** that can be exchanged on its own
+     (§4.2).
 6. Coordination with PlantConvert and with the RSML maintainers: one family of formats, or fspm-TF absorbing RSML's
    use cases.
+answer: should be a separated initiative. In this regard, how is the test / source management and CI to be handled, since I am only used to python? In the example of metafspm, how will this repo or its release be used to build metafspm's io?
+   → **Decided:** fspm-TF is an initiative separate from RSML and PlantConvert. Converters to and from them can come
+   later, in PlantConvert. On tests, sources, CI and metafspm's use of the repository: see §5.1. In short:
+   - The repository holds the specification and a **Python** package, `fspm-tf`, which depends only on numpy and
+     jsonschema. It is the reference codec: it reads and writes GLB files, their property tables and the index, and
+     knows nothing of metafspm. It also contains the validator and the conformance files.
+   - Other platforms need no Python of yours. They use the conformance files (GLBs plus their expected values as
+     JSON) as test fixtures in their own CI, and run the validator on what they write. The validator is installed by
+     `pip` or `conda` and run as a command line.
+   - metafspm depends on `fspm-tf` like on any package, pinned to a specification version. Its `io` module maps
+     DataStructures to the generic model and calls the codec.
 7. The first vocabulary: who proposes it, and the 30 names to start from.
+The first vocabulary can be inspired from metafspm's current version, but if metafspm lacks some aspects, you can inspire from other platforms.
+   → **Decided:** the first vocabulary is drafted from the declarations of metafspm and of its ported packages
+   (ArchiSimple, Adel, Caribu, GRANAP, MECHA). It is completed from CPlantBox, GroIMP and VPL where metafspm lacks a
+   domain (§4.5).
 8. Whether glTF stays the normative file binding, or VTKHDF takes that role. VTKHDF is better on time and ParaView,
    but needs HDF5 and is weaker on graphs. Recommendation: glTF.
+answer: stay on glTF, I don't want an extra too complex dependency.
+   → **Decided:** glTF only. The VTKHDF export is dropped (§4.7). ParaView views files through display copies (item 4).
 
 ## Appendix A: sources (checked 2026-10-29)
 
