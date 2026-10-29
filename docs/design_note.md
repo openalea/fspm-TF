@@ -340,8 +340,10 @@ pointing at them, capped at 4 GiB.
 #### Viewing
 
 - Any glTF viewer shows the geometry.
-- ParaView shows the display copies: float32 per-vertex copies of chosen variables. Files have none by default;
-  the writer's `display=` option or the `fspm-tf display` tool adds them (§7.4).
+- ParaView, with the `fspm-tf` reader plugin, shows every variable at every scale as float64 cell data, with the
+  index's frames as time steps (§7.4).
+- ParaView without the plugin, and other viewers, show the display copies: float32 per-vertex copies of chosen
+  variables. Files have none by default; the writer's `display=` option or the `fspm-tf display` tool adds them.
 - Cesium and 3DTilesRendererJS show every table.
 
 ### 4.5 The vocabulary
@@ -492,6 +494,34 @@ claims.
 - A new release of the specification is a new `fspm-tf` version. metafspm moves to it with a pin change, and its
   tests tell what has to follow.
 
+### 5.2 What other languages need
+
+The format's conventions reach other platforms as **files, not code**. Each release of the specification publishes,
+in `schema/`, `vocabulary/` and `conformance/` (and as release assets):
+
+| Artefact | Content | Read in C++ / Java / Julia with |
+|---|---|---|
+| `spec/` | the specification text | — |
+| `schema/fspm_scene.schema.json`, `schema/index.schema.json` | the structure of `FSPM_scene` and of the index | any JSON Schema validator: valijson or json-schema-validator (C++), networknt json-schema-validator (Java), JSONSchema.jl (Julia) |
+| `vocabulary/standard_names.csv`, `vocabulary/enums.json` | standard names with units and kinds; labels, edge types, relations, kinds, roles | any CSV or JSON reader |
+| `conformance/*.glb` with `*.expected.json` | the reference scenes and their values | the platform's own codec, against the JSON |
+| `fspm-tf validate` | the full checks, as a command line | its CI (conda, pip, or a container image) |
+
+What a platform writes is **its codec**:
+- **The GLB container:** a 12-byte header, a JSON chunk and a binary chunk.
+- **The property tables:** each column is a slice of the binary chunk, cast to its type.
+- **The mapping:** from these tables to its own model.
+
+That is a few hundred lines in any language, and existing libraries can help:
+- **C++ (CPlantBox):** cesium-native reads and writes `EXT_structural_metadata` fully. CPlantBox can also begin
+  through its Python layer, with `fspm-tf` directly.
+- **Java (GroIMP):** JglTF has the extension's JSON classes. GroIMP's existing glTF plugin is the place to extend.
+- **Julia (VPL):** GLTF.jl handles `.gltf` JSON only, so a small GLB reader has to be written. That is the part
+  above, the header and the two chunks.
+
+These codecs live in the platforms' repositories, maintained by their teams. `implementations.md` lists them with
+the specification version each one passes. fspm-TF itself maintains only Python.
+
 ## 6. Plan
 
 | Phase | Content | Done when |
@@ -499,7 +529,7 @@ claims.
 | P0 | This note, discussed with the partner platforms | the [decision] points settled |
 | P1 | Specification v0.1: data model, glTF binding, JSON Schema, first vocabulary; the `fspm-tf` package (codec, validator, display tool), the conformance files, CI | the validator and glTF-Validator accept the conformance files |
 | P2 | metafspm reference implementation: `export_frame` and `import_frame` for MPG, Array and AdaptiveGrid DataStructures, mappings and triangles | round-trip tests bit-exact on the ported models' scenes (ArchiSimple, Adel, Caribu, GRANAP and MECHA, soil) |
-| P3 | Viewer checks: ParaView (display copies, the `fspm-tf display` tool), three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
+| P3 | The ParaView reader plugin (Python, on the `fspm-tf` codec: every variable as cell data, frames as time steps); viewer checks of display copies: ParaView without the plugin, three.js/3DTilesRenderer, Blender | the example files viewed with their variables |
 | P4 | A second platform: CPlantBox through its Python layer (the easiest), or VPL through PlantGeom.jl | a file written by one platform and read by the other, with the same values |
 | P5 | Arrow binding and coupling protocol; a two-platform coupled run | one component in metafspm and one in another platform exchanging tables at each step |
 
@@ -534,7 +564,26 @@ answer: I don't understand the question.
      platform has to implement this.
    - Display copies are flagged as such, and readers ignore them as state.
 
-   **[decision: confirm]**
+   answer: I agree with the proposal, and for no display copies outputs, is there another viewer better suited for this?
+
+   → **Decided:** display copies as proposed.
+
+   **Viewers for files without display copies.** No existing viewer colours geometry by our tables *and* plays a
+   sequence of time steps out of the box:
+   - **CesiumJS** and **3DTilesRendererJS** (three.js) read `EXT_structural_metadata`. They can pick an entity and
+     show its values, and colour by a property through a custom shader. But they are geospatial and web-graphics
+     tools: there is no plot, no filter, and no notion of our index of time steps.
+
+   The best-suited option is a **ParaView reader plugin written in Python**, shipped with `fspm-tf`:
+   - ParaView loads Python readers (a `VTKPythonAlgorithmBase` with its decorators, since ParaView 5.6). It runs
+     them in its own Python, which has numpy, so the pure-Python `fspm-tf` codec runs inside ParaView.
+     **[to verify: installing `fspm-tf` into ParaView's Python, per platform]**
+   - The plugin reads the GLB (or the index file) and turns each triangle's entity value into float64 *cell data*
+     (one value per triangle, from the feature IDs). Every variable, at every scale, becomes available for colouring,
+     filters and plots. The index's frames become ParaView's time steps, with a growing topology.
+   - Nothing is duplicated on disk, and ParaView's whole analysis toolset applies.
+   - This is P3 (§6). Display copies remain for viewers without the plugin: Blender, a web viewer, ParaView without
+     the plugin.
 5. Whether data-structure-level parameters are exchanged (parameter tables) or only states and inputs.
 answer: also parameters, that would enable also to exchange them between platforms.
    → **Decided:** parameters are exchanged.
@@ -558,6 +607,16 @@ answer: should be a separated initiative. In this regard, how is the test / sour
      `pip` or `conda` and run as a command line.
    - metafspm depends on `fspm-tf` like on any package, pinned to a specification version. Its `io` module maps
      DataStructures to the generic model and calls the codec.
+     answer: ok for the strategy, I see how the python package will make it easily available in python, but for other languages / platforms what does it imply to make the format's conventions available?
+
+   → See §5.2. In short:
+   - The conventions are published as **language-neutral files**: the specification text; the JSON Schema; the
+     vocabulary and the enums (labels, edge types, relations, kinds, roles) as JSON and CSV; the conformance files with
+     their expected values. Every language reads these with its standard JSON tools, so no platform hard-codes the
+     conventions.
+   - Each platform writes **its own codec**: GLB's three parts, the property tables, and the mapping to its own model.
+   - The validator checks every platform's output from the command line.
+   - CPlantBox can also start from its Python layer with `fspm-tf` directly.
 7. The first vocabulary: who proposes it, and the 30 names to start from.
 The first vocabulary can be inspired from metafspm's current version, but if metafspm lacks some aspects, you can inspire from other platforms.
    → **Decided:** the first vocabulary is drafted from the declarations of metafspm and of its ported packages
