@@ -1,4 +1,4 @@
-"""Comparing a codec's dumps with the conformance files' expected values (fspm-tf compare, compare-all)."""
+"""Comparing a codec's dumps with the conformance files' expected values (encoding3d compare, compare-all)."""
 import json
 import os
 import shutil
@@ -6,8 +6,8 @@ import shutil
 import pytest
 
 from conftest import CONFORMANCE
-from openalea.fspm_tf.cli import main
-from openalea.fspm_tf.compare import compare, compare_all
+from openalea.encoding3d.cli import main
+from openalea.encoding3d.compare import compare, compare_all
 
 
 @pytest.mark.parametrize("actual, expected, equal", [
@@ -39,7 +39,7 @@ def test_compare_all(tmp_path):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(os.path.join(folder, name), target)
     results = compare_all(str(dumps), CONFORMANCE)
-    assert len(results) == 9 and not any(results.values())
+    assert len(results) == 10 and not any(results.values())
     assert main(["compare-all", str(dumps), CONFORMANCE]) == 0
     with open(dumps / "root_system.json") as file:
         dump = json.load(file)

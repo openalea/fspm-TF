@@ -1,8 +1,8 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/openalea/fspm-TF/schema/0.1/fspm_scene.schema.json",
+ "$id": "https://github.com/openalea/encoding3d/schema/0.3/fspm_scene.schema.json",
  "title": "FSPM_scene",
- "description": "The FSPM_scene root extension of a glTF 2.0 asset (fspm-TF 0.1): one frame of a scene.",
+ "description": "The FSPM_scene root extension of a glTF 2.0 asset (encoding3d 0.3): one frame of a scene.",
  "type": "object",
  "required": ["version", "frame", "dataStructures"],
  "properties": {
@@ -14,6 +14,19 @@
                   "step": {"type": "integer", "minimum": 0}},
    "additionalProperties": false},
   "writer": {"type": "object"},
+  "update": {
+   "description": "Set in a partial frame, a coupling session's message (specification §11): its sender, and the entities it removed.",
+   "type": "object", "required": ["participant"],
+   "properties": {
+    "participant": {"$ref": "#/$defs/identifier"},
+    "removed": {"type": "array", "items": {
+     "type": "object", "required": ["dataStructure", "entitySet", "propertyTable"],
+     "properties": {"dataStructure": {"$ref": "#/$defs/identifier"}, "entitySet": {"type": "string", "minLength": 1},
+                    "propertyTable": {"$ref": "#/$defs/index"}},
+     "additionalProperties": false}}
+   },
+   "additionalProperties": false
+  },
   "dataStructures": {"type": "array", "items": {"$ref": "#/$defs/dataStructure"}},
   "mappings": {"type": "array", "items": {"$ref": "#/$defs/mapping"}},
   "variables": {
@@ -39,6 +52,8 @@
     "entitySets": {"type": "array", "items": {
      "type": "object", "required": ["name", "propertyTable"],
      "properties": {"name": {"$ref": "#/$defs/identifier"}, "rank": {"type": ["integer", "null"]},
+                    "scale": {"enum": ["Plant", "Axis", "GrowthUnit", "Phytomer", "Organ", "SubOrgan", "Layer",
+                                       "Cell", "Compartment", "Connection", "mixed"]},
                     "propertyTable": {"$ref": "#/$defs/index"}},
      "additionalProperties": false}},
     "relations": {"type": "array", "items": {
@@ -47,6 +62,7 @@
                     "targetSet": {"$ref": "#/$defs/identifier"}, "propertyTable": {"$ref": "#/$defs/index"}},
      "additionalProperties": false}},
     "scalars": {"$ref": "#/$defs/index"},
+    "labels": {"type": "object", "additionalProperties": {"type": "string"}},
     "grid": {"$ref": "#/$defs/grid"},
     "extras": {"type": "object"},
     "meshes": {"type": "array", "items": {
@@ -94,7 +110,8 @@
     "role": {"enum": ["state", "input", "parameter", "derived", "setting"]},
     "minimum": {"type": "number"}, "maximum": {"type": "number"},
     "references": {"type": "array", "items": {"type": "string"}},
-    "doi": {"type": "array", "items": {"type": "string"}}},
+    "doi": {"type": "array", "items": {"type": "string"}},
+    "format": {"enum": ["date", "date-time", "time"]}},
    "additionalProperties": false}
  }
 }
